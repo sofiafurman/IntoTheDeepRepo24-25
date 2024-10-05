@@ -30,7 +30,7 @@
 //This is just a test
 
 package org.firstinspires.ftc.teamcode;
-
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -65,7 +65,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @TeleOp(name="LASER Mecanum Teleop Basic", group="Linear OpMode")
-
+//@Disabled
 public class LASER_Teleop extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
@@ -170,12 +170,11 @@ public class LASER_Teleop extends LinearOpMode {
             if (gamepad1.a) {
                 if (keyA == false) {
                     keyA = !keyA;
-                    if (speed == 1.0) {
-                        speed = 0.5;
-                    } else if (speed == 0.5) {
-                        speed = 0.3;
-                    } else {
-                        speed = 1.0;
+                    switch ((int)(speed * 10)) {
+                        case 10 : speed = 0.7; break;
+                        case 7 : speed = 0.5; break;
+                        case 5 : speed = 0.3; break;
+                        case 3 : speed = 1.0; break;
                     }
                 }
             } else {
