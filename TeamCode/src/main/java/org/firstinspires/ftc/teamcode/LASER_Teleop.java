@@ -27,8 +27,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+//This is just a test
 
+package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -63,9 +64,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Basic: Omni Linear OpMode", group="Linear OpMode")
+@TeleOp(name="LASER Main Teleop", group="Linear OpMode")
 //@Disabled
-public class BasicOmniOpMode_Linear extends LinearOpMode {
+public class LASER_Teleop extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
@@ -73,9 +74,16 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
+    private DcMotor slideVertical = null;
+    private DcMotor slideHorizontal = null;
 
     @Override
     public void runOpMode() {
+
+        double speed = 1.0;   // used to manage half speed, defaults to full speed
+        boolean invertDir = false;  // used for inverted direction prompts
+        int invDir = 1;    // used to activate inverted direction
+        boolean keyA = false, keyB = false;    // used for toggle keys
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -83,6 +91,8 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
         leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        slideVertical = hardwareMap.get(DcMotor.class, "vertical_slide");
+        slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -98,8 +108,10 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        slideVertical.setDirection(DcMotor.Direction.FORWARD);
+        slideHorizontal.setDirection(DcMotor.Direction.FORWARD);
 
-        // Wait for the game to start (driver presses START)
+        // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -108,19 +120,22 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
             double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
+            double lateral = -gamepad1.left_stick_x;
             double yaw     =  gamepad1.right_stick_x;
+            double VslideInput = -gamepad2.left_stick_y;
+            double HslideInput = -gamepad2.right_stick_y;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower  = axial + lateral + yaw;
-            double rightFrontPower = axial - lateral - yaw;
-            double leftBackPower   = axial - lateral + yaw;
-            double rightBackPower  = axial + lateral - yaw;
+            double leftFrontPower  = -axial + lateral + yaw;
+            double rightFrontPower = -axial - lateral - yaw;
+            double leftBackPower   = -axial - lateral + yaw;
+            double rightBackPower  = axial - lateral + yaw;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -152,16 +167,87 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
             */
 
+            if (gamepad1.a) {
+                if (keyA == false) {
+                    keyA = !keyA;
+                    switch ((int)(speed * 10)) {
+                        case 10 : speed = 0.7; break;
+                        case 7 : speed = 0.5; break;
+                        case 5 : speed = 0.3; break;
+                        case 3 : speed = 1.0; break;
+                    }
+                }
+            } else {
+                keyA = false;
+            }
+
+            if (gamepad1.b) {
+                if (keyB == false) {
+                    keyB = !keyB;
+                    invertDir = !invertDir;
+                    if (invertDir) {
+                        invDir = -1;
+                    } else {
+                        invDir = 1;
+                    }
+                }
+            } else {
+                keyB = false;
+            }
+
             // Send calculated power to wheels
-            leftFrontDrive.setPower(leftFrontPower);
-            rightFrontDrive.setPower(rightFrontPower);
-            leftBackDrive.setPower(leftBackPower);
-            rightBackDrive.setPower(rightBackPower);
+            leftFrontDrive.setPower(leftFrontPower * speed * invDir);
+            rightFrontDrive.setPower(rightFrontPower * speed * invDir);
+            leftBackDrive.setPower(leftBackPower * speed * invDir);
+            rightBackDrive.setPower(rightBackPower * speed * invDir);
+
+            slideHorizontal.setPower(0);
+            if (VslideInput > 0.1 || VslideInput < -0.1) {
+                slideVertical.setPower(VslideInput);
+            } else {
+                /*
+                if (gamepad1.dpad_up) {
+                    slideVertical.setPower(0.5);
+                } else if (gamepad1.dpad_down) {
+                    slideVertical.setPower(-0.5);
+                } else {
+                    slideVertical.setPower(0);
+                }
+                */
+                if (gamepad1.left_bumper) {
+                    slideVertical.setPower(-0.5);
+                } else {
+                    slideVertical.setPower(gamepad1.left_trigger);
+                }
+            }
+
+            slideHorizontal.setPower(0);
+            if (HslideInput > 0.1 || HslideInput < -0.1) {
+                slideHorizontal.setPower(HslideInput);
+            } else {
+                /*
+                if (gamepad1.dpad_right) {
+                    slideHorizontal.setPower(0.5);
+                } else if (gamepad1.dpad_left) {
+                    slideHorizontal.setPower(-0.5);
+                } else {
+                    slideHorizontal.setPower(0);
+                }
+                */
+                if (gamepad1.right_bumper) {
+                    slideHorizontal.setPower(-0.5);
+                } else {
+                    slideHorizontal.setPower(gamepad1.right_trigger);
+                }
+            }
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
+            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
+            telemetry.addData("Speed", "%4.2f", speed);
+            telemetry.addData("Invert Direction", "%1b", invertDir);
             telemetry.update();
         }
-    }}
+    }
+}
