@@ -205,17 +205,8 @@ public class LASER_Teleop extends LinearOpMode {
             if (VslideInput > 0.1 || VslideInput < -0.1) {
                 slideVertical.setPower(VslideInput);
             } else {
-                /*
-                if (gamepad1.dpad_up) {
-                    slideVertical.setPower(0.5);
-                } else if (gamepad1.dpad_down) {
-                    slideVertical.setPower(-0.5);
-                } else {
-                    slideVertical.setPower(0);
-                }
-                */
                 if (gamepad1.left_bumper) {
-                    slideVertical.setPower(-0.5);
+                    slideVertical.setPower(-1);
                 } else {
                     slideVertical.setPower(gamepad1.left_trigger);
                 }
@@ -225,17 +216,8 @@ public class LASER_Teleop extends LinearOpMode {
             if (HslideInput > 0.1 || HslideInput < -0.1) {
                 slideHorizontal.setPower(HslideInput);
             } else {
-                /*
-                if (gamepad1.dpad_right) {
-                    slideHorizontal.setPower(0.5);
-                } else if (gamepad1.dpad_left) {
-                    slideHorizontal.setPower(-0.5);
-                } else {
-                    slideHorizontal.setPower(0);
-                }
-                */
                 if (gamepad1.right_bumper) {
-                    slideHorizontal.setPower(-0.5);
+                    slideHorizontal.setPower(-1);
                 } else {
                     slideHorizontal.setPower(gamepad1.right_trigger);
                 }
