@@ -71,19 +71,13 @@ public class LASER_Teleop extends LinearOpMode {
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
 
-    static final double  SERVO_SPEED =  0.005;  // amount to slew servo each CYCLE_MS cycle
-    static final int     CYCLE_MS    =  50;    // period of each cycle
-    static final double  MAX_POS     =  1.0;   // Maximum rotational position
-    static final double  MIN_POS     =  0.0;   // Minimum rotational position
-    double outtakeServoPosition      =  MIN_POS;   // outtake Servo position
-
     private DcMotor leftFrontDrive  = null;
     private DcMotor leftBackDrive   = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive  = null;
     private DcMotor slideVertical   = null;
     private DcMotor slideHorizontal = null;
-    private Servo   outtakeServo    = null;
+    Servo outtakeServo;
 
     @Override
     public void runOpMode() {
@@ -101,7 +95,14 @@ public class LASER_Teleop extends LinearOpMode {
         rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
         slideVertical   = hardwareMap.get(DcMotor.class, "vertical_slide");
         slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
-        outtakeServo    = hardwareMap.get(Servo.class,   "outtake_servo");
+
+        outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
+        final  double  SERVO_SPEED  =  0.01;    // amount to slew servo each CYCLE_MS cycle
+        final  int     CYCLE_MS     =  50;      // period of each cycle
+        final  double  MAX_POS      =  0.55;    // Maximum rotational position
+        final  double  MIN_POS      =  0.0;     // Minimum rotational position
+        double outtakeServoPosition =  MIN_POS; // outtake Servo position
+
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -231,15 +232,17 @@ public class LASER_Teleop extends LinearOpMode {
             }
 
             // OUTTAKE SERVO CONTROLS
-            if (gamepad1.y) {
-                outtakeServoPosition += SERVO_SPEED * speed;
-                if (outtakeServoPosition >= MAX_POS) {
-                    outtakeServoPosition = MAX_POS;
-                }
-            } else {
+            if (! gamepad1.y) {
                 outtakeServoPosition -= SERVO_SPEED * speed;
                 if (outtakeServoPosition <= MIN_POS) {
                     outtakeServoPosition = MIN_POS;
+                    outtakeServo.setPosition(outtakeServoPosition);
+                }
+            } else {
+                outtakeServoPosition += SERVO_SPEED * speed;
+                if (outtakeServoPosition >= MAX_POS) {
+                    outtakeServoPosition = MAX_POS;
+                    outtakeServo.setPosition(outtakeServoPosition);
                 }
             }
 
@@ -256,6 +259,9 @@ public class LASER_Teleop extends LinearOpMode {
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
             telemetry.addData("Speed", "%4.2f", speed);
             telemetry.addData("Invert Direction", "%1b", invertDir);
+            telemetry.addData("Servo Position", "%4.2f", outtakeServoPosition);
+            telemetry.addData("MIN_POS", "%4.2f", MIN_POS);
+            telemetry.addData("Servo Position", "%4.2f", outtakeServo.getPosition());
             telemetry.update();
 
             sleep(CYCLE_MS);
