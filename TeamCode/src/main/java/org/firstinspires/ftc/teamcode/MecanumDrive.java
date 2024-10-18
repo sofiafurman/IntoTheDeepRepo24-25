@@ -64,20 +64,24 @@ public final class MecanumDrive {
         //control hub switch, usb switch from backward to forward
 
         // drive model parameters
-        public double inPerTick = (double) 156 / 272244;
+        public double inPerTick = (double) 128 / 223133;
+        //0.000573648899983418 X (10 ^ -4)
         //in/tick
-        //156 / 272244
-        public double lateralInPerTick = 1.9132010478538962e-8;
-        //weird data that is symmetrical across the x axis, orange warning for negative lateral velocity
+        //128 / 223133
+        public double lateralInPerTick =  0.00048548774472233154;
+        //little bit wobbly (graph) at the start
+        // 0.00048548774472233154
 
-        public double trackWidthTicks = 16173.1412043038;
-        //16173.1412043038
+        public double trackWidthTicks = 16305.51497544853;
+        //16305.51497544853
 
         // feedforward parameters (in tick units)
-        public double kS = 0.5830608395597201;
-        public double kV = 0.00022843759520442582;
-        public double kA = 0.000012;
-        //0.000012, og 0
+        public double kS = 0.8858658585746113;
+        //0.8858658585746113
+        public double kV = 0.00023113921193564164;
+        //0.00023113921193564164
+        public double kA = 0.00000034;
+        //0.00000034
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
