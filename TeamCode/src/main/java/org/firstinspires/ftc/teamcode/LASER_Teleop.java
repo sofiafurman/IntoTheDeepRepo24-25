@@ -82,6 +82,8 @@ public class LASER_Teleop extends LinearOpMode {
     @Override
     public void runOpMode() {
 
+        final int CYCLE_MS = 50;
+
         double speed = 1.0;   // used to manage half speed, defaults to full speed
         boolean invertDir = false;  // used for inverted direction prompts
         int invDir = 1;    // used to activate inverted direction
@@ -97,11 +99,11 @@ public class LASER_Teleop extends LinearOpMode {
         slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
 
         outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
-        final  double  SERVO_SPEED  =  0.01;    // amount to slew servo each CYCLE_MS cycle
-        final  int     CYCLE_MS     =  50;      // period of each cycle
-        final  double  MAX_POS      =  0.55;    // Maximum rotational position
-        final  double  MIN_POS      =  0.0;     // Minimum rotational position
-        double outtakeServoPosition =  MIN_POS; // outtake Servo position
+        final double OUT_SERVO_DOWN_POS = 0.0;
+        final double OUT_SERVO_UP_POS   = 0.6;
+        final double SERVO_SPEED        = 0.1;
+        double outtakeServoPosition     = outtakeServo.getPosition();
+
 
 
         // ########################################################################################
@@ -232,19 +234,18 @@ public class LASER_Teleop extends LinearOpMode {
             }
 
             // OUTTAKE SERVO CONTROLS
-            if (! gamepad1.y) {
-                outtakeServoPosition -= SERVO_SPEED * speed;
-                if (outtakeServoPosition <= MIN_POS) {
-                    outtakeServoPosition = MIN_POS;
-                    outtakeServo.setPosition(outtakeServoPosition);
+            if (!gamepad1.y) {
+                outtakeServoPosition += SERVO_SPEED * speed;
+                if (outtakeServoPosition >= OUT_SERVO_UP_POS) {
+                    outtakeServoPosition = OUT_SERVO_UP_POS;
                 }
             } else {
-                outtakeServoPosition += SERVO_SPEED * speed;
-                if (outtakeServoPosition >= MAX_POS) {
-                    outtakeServoPosition = MAX_POS;
-                    outtakeServo.setPosition(outtakeServoPosition);
+                outtakeServoPosition -= SERVO_SPEED * speed;
+                if (outtakeServoPosition <= OUT_SERVO_DOWN_POS) {
+                    outtakeServoPosition = OUT_SERVO_DOWN_POS;
                 }
             }
+            outtakeServo.setPosition(outtakeServoPosition);
 
             // Send calculated power to wheels
             leftFrontDrive.setPower(leftFrontPower * speed * invDir);
@@ -260,7 +261,6 @@ public class LASER_Teleop extends LinearOpMode {
             telemetry.addData("Speed", "%4.2f", speed);
             telemetry.addData("Invert Direction", "%1b", invertDir);
             telemetry.addData("Servo Position", "%4.2f", outtakeServoPosition);
-            telemetry.addData("MIN_POS", "%4.2f", MIN_POS);
             telemetry.addData("Servo Position", "%4.2f", outtakeServo.getPosition());
             telemetry.update();
 
