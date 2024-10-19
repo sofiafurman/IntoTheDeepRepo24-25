@@ -1,3 +1,4 @@
+//THIS IS CHEEZITBOT THAT I NEVER GOT WORKING. THE COMPETITION ROBOT IS 3 DEAD WHEELS
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -26,10 +27,12 @@ import org.firstinspires.ftc.teamcode.messages.TwoDeadWheelInputsMessage;
 @Config
 public final class TwoDeadWheelLocalizer implements Localizer {
     public static class Params {
-        public double parYTicks = -6888.568049158091; // y position of the parallel encoder (in tick units)
+        public double parYTicks =  -6506.654385932524; // y position of the parallel encoder (in tick units)
         //-6888.568049158091
-        public double perpXTicks = -1432.398115349598; // x position of the perpendicular encoder (in tick units)
+        //new -6887.367647919471
+        public double perpXTicks =  -1461.0621794240044; // x position of the perpendicular encoder (in tick units)
         //-1432.398115349598
+        //new -1534.9346213956119 aggressive exclusion
     }
 
     public static Params PARAMS = new Params();
