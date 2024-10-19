@@ -33,7 +33,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
@@ -70,15 +70,19 @@ public class LASER_Teleop extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftFrontDrive = null;
-    private DcMotor leftBackDrive = null;
+
+    private DcMotor leftFrontDrive  = null;
+    private DcMotor leftBackDrive   = null;
     private DcMotor rightFrontDrive = null;
-    private DcMotor rightBackDrive = null;
-    private DcMotor slideVertical = null;
+    private DcMotor rightBackDrive  = null;
+    private DcMotor slideVertical   = null;
     private DcMotor slideHorizontal = null;
+    Servo outtakeServo;
 
     @Override
     public void runOpMode() {
+
+        final int CYCLE_MS = 50;
 
         double speed = 1.0;   // used to manage half speed, defaults to full speed
         boolean invertDir = false;  // used for inverted direction prompts
@@ -88,11 +92,19 @@ public class LASER_Teleop extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
+        leftBackDrive   = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
-        slideVertical = hardwareMap.get(DcMotor.class, "vertical_slide");
+        rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
+        slideVertical   = hardwareMap.get(DcMotor.class, "vertical_slide");
         slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
+
+        outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
+        final double OUT_SERVO_DOWN_POS = 0.0;
+        final double OUT_SERVO_UP_POS   = 0.6;
+        final double SERVO_SPEED        = 0.1;
+        double outtakeServoPosition     = outtakeServo.getPosition();
+
+
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -167,6 +179,7 @@ public class LASER_Teleop extends LinearOpMode {
             rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
             */
 
+            // HALF SPEED CONTROLS
             if (gamepad1.a) {
                 if (keyA == false) {
                     keyA = !keyA;
@@ -181,6 +194,7 @@ public class LASER_Teleop extends LinearOpMode {
                 keyA = false;
             }
 
+            // INVERTED DIRECTION CONTROLS
             if (gamepad1.b) {
                 if (keyB == false) {
                     keyB = !keyB;
@@ -195,12 +209,7 @@ public class LASER_Teleop extends LinearOpMode {
                 keyB = false;
             }
 
-            // Send calculated power to wheels
-            leftFrontDrive.setPower(leftFrontPower * speed * invDir);
-            rightFrontDrive.setPower(rightFrontPower * speed * invDir);
-            leftBackDrive.setPower(leftBackPower * speed * invDir);
-            rightBackDrive.setPower(rightBackPower * speed * invDir);
-
+            // HORIZONTAL SLIDE CONTROLS
             slideHorizontal.setPower(0);
             if (VslideInput > 0.1 || VslideInput < -0.1) {
                 slideVertical.setPower(VslideInput);
@@ -212,6 +221,7 @@ public class LASER_Teleop extends LinearOpMode {
                 }
             }
 
+            // VERTICAL SLIDE CONTROLS
             slideHorizontal.setPower(0);
             if (HslideInput > 0.1 || HslideInput < -0.1) {
                 slideHorizontal.setPower(HslideInput);
@@ -223,13 +233,38 @@ public class LASER_Teleop extends LinearOpMode {
                 }
             }
 
+            // OUTTAKE SERVO CONTROLS
+            if (!gamepad1.y) {
+                outtakeServoPosition += SERVO_SPEED * speed;
+                if (outtakeServoPosition >= OUT_SERVO_UP_POS) {
+                    outtakeServoPosition = OUT_SERVO_UP_POS;
+                }
+            } else {
+                outtakeServoPosition -= SERVO_SPEED * speed;
+                if (outtakeServoPosition <= OUT_SERVO_DOWN_POS) {
+                    outtakeServoPosition = OUT_SERVO_DOWN_POS;
+                }
+            }
+            outtakeServo.setPosition(outtakeServoPosition);
+
+            // Send calculated power to wheels
+            leftFrontDrive.setPower(leftFrontPower * speed * invDir);
+            rightFrontDrive.setPower(rightFrontPower * speed * invDir);
+            leftBackDrive.setPower(leftBackPower * speed * invDir);
+            rightBackDrive.setPower(rightBackPower * speed * invDir);
+            outtakeServo.setPosition(outtakeServoPosition);
+
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
             telemetry.addData("Speed", "%4.2f", speed);
             telemetry.addData("Invert Direction", "%1b", invertDir);
+            telemetry.addData("Servo Position", "%4.2f", outtakeServoPosition);
+            telemetry.addData("Servo Position", "%4.2f", outtakeServo.getPosition());
             telemetry.update();
+
+            sleep(CYCLE_MS);
         }
     }
 }
