@@ -61,23 +61,28 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.LogoFacingDirection.UP;
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
-        //control hub switch, usb switch from backward to forward
+        //FORWARD, UP
 
         // drive model parameters
-        public double inPerTick = (double) 156 / 272244;
+        public double inPerTick =  0.001972582757306;
         //in/tick
-        //156 / 272244
-        public double lateralInPerTick = 1.9132010478538962e-8;
-        //weird data that is symmetrical across the x axis, orange warning for negative lateral velocity
+        //119/60327
+        //0.001972582757306
+      public double lateralInPerTick =  0.001490389000611221;
+      //0.001490389000611221
 
-        public double trackWidthTicks = 16173.1412043038;
-        //16173.1412043038
+        public double trackWidthTicks = 7008.338306969918;
+        //7008.338306969918
+
+
 
         // feedforward parameters (in tick units)
-        public double kS = 0.5830608395597201;
-        public double kV = 0.00022843759520442582;
-        public double kA = 0.000012;
-        //0.000012, og 0
+        public double kS = 0;
+
+        public double kV = 0.0003837024735760558;
+
+        public double kA = 0;
+
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -89,9 +94,9 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 4.0;
-        public double lateralGain = 0.00001;
-        public double headingGain = 3.0; // shared with turn
+        public double axialGain = 0.0;
+        public double lateralGain = 0.0;
+        public double headingGain = 0.0; // shared with turn
         //this is not accurate at all
 
         public double axialVelGain = 0.0;
@@ -225,20 +230,19 @@ public final class MecanumDrive {
 
         // TO/DO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
-        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
-        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        leftFront = hardwareMap.get(DcMotorEx.class, "right_back_drive");//left_front
+        leftBack = hardwareMap.get(DcMotorEx.class, "right_front_drive");//left_back
+        rightBack = hardwareMap.get(DcMotorEx.class, "left_front_drive");//right_back
+        rightFront = hardwareMap.get(DcMotorEx.class, "left_back_drive");//right_front
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+
         // TO/DO: reverse motor directions if needed
         //   leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         // TO/DO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
         lazyImu = new LazyImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
@@ -246,7 +250,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new TwoDeadWheelLocalizer(hardwareMap, lazyImu.get(), PARAMS.inPerTick);
+        localizer = new ThreeDeadWheelLocalizer(hardwareMap, PARAMS.inPerTick);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
