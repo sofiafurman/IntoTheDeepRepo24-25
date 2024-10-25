@@ -59,14 +59,13 @@ public class ServoTester extends LinearOpMode {
 
     // Define class members
     Servo   servo;
-    double  position = (MAX_POS - MIN_POS) / 2; // Start at halfway position
 
     @Override
     public void runOpMode() {
 
-        // Connect to servo (Assume Robot Left Hand)
         // Change the text in quotes to match any servo name on your robot.
         servo = hardwareMap.get(Servo.class, "servo");
+        double  position = 0.5; // Start at halfway position
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to scan Servo." );
@@ -77,14 +76,13 @@ public class ServoTester extends LinearOpMode {
         // Scan servo till stop pressed.
         while(opModeIsActive()){
 
-            // slew the servo, according to the rampUp (direction) variable.
             if (gamepad1.a) {
                 // Keep stepping up until we hit the max value.
                 position += INCREMENT ;
                 if (position >= MAX_POS ) {
                     position = MAX_POS;
                 }
-            } else {
+            } else if (gamepad1.b) {
                 // Keep stepping down until we hit the min value.
                 position -= INCREMENT ;
                 if (position <= MIN_POS ) {
