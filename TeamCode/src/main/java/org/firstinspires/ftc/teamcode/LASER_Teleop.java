@@ -31,7 +31,6 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
@@ -90,6 +89,9 @@ public class LASER_Teleop extends LinearOpMode {
         int invDir = 1;    // used to activate inverted direction
         boolean keyA = false, keyB = false;    // used for toggle keys
 
+        double C_LATERAL, C_AXIAL, C_YAW, C_VERT_SLIDE_U, C_DWN_SLIDE_U;
+        boolean C_HALF_SPEED, C_INV_DIR, C_VERT_SLIDE_D, C_DWN_SLIDE_D, C_OUT_SERVO;
+
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
@@ -100,9 +102,9 @@ public class LASER_Teleop extends LinearOpMode {
         slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
 
         outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
-        final double OUT_SERVO_DOWN_POS = 0.0;
-        final double OUT_SERVO_UP_POS   = 0.6;
-        final double SERVO_SPEED        = 0.1;
+        final double OUT_SERVO_DOWN_POS = 1.0;
+        final double OUT_SERVO_UP_POS   = 0.55;
+        final double SERVO_SPEED        = -0.1;
         double outtakeServoPosition     = outtakeServo.getPosition();
 
 
@@ -134,21 +136,31 @@ public class LASER_Teleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
+            // KEYBINDS
+            C_AXIAL        = gamepad1.left_stick_y;
+            C_LATERAL      = gamepad1.left_stick_x;
+            C_YAW          = gamepad1.right_stick_x;
+            C_HALF_SPEED   = gamepad1.a;
+            C_INV_DIR      = gamepad1.b;
+            C_VERT_SLIDE_U = gamepad2.right_trigger;
+            C_DWN_SLIDE_U  = gamepad2.left_trigger;
+            C_VERT_SLIDE_D = gamepad2.right_bumper;
+            C_DWN_SLIDE_D  = gamepad2.left_bumper;
+            C_OUT_SERVO    = gamepad2.y;
+
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral = -gamepad1.left_stick_x;
-            double yaw     =  gamepad1.right_stick_x;
-            double VslideInput = -gamepad2.left_stick_y;
-            double HslideInput = -gamepad2.right_stick_y;
+            double axial   = -C_AXIAL;  // Note: pushing stick forward gives negative value
+            double lateral = -C_LATERAL;
+            double yaw     =  C_YAW;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
             double leftFrontPower  = -axial + lateral + yaw;
             double rightFrontPower = -axial - lateral - yaw;
             double leftBackPower   = -axial - lateral + yaw;
-            double rightBackPower  = axial - lateral + yaw;
+            double rightBackPower  =  axial - lateral + yaw;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -181,7 +193,7 @@ public class LASER_Teleop extends LinearOpMode {
             */
 
             // HALF SPEED CONTROLS
-            if (gamepad1.a) {
+            if (C_HALF_SPEED) {
                 if (keyA == false) {
                     keyA = !keyA;
                     switch ((int)(speed * 10)) {
@@ -196,7 +208,7 @@ public class LASER_Teleop extends LinearOpMode {
             }
 
             // INVERTED DIRECTION CONTROLS
-            if (gamepad1.b) {
+            if (C_INV_DIR) {
                 if (keyB == false) {
                     keyB = !keyB;
                     invertDir = !invertDir;
@@ -210,39 +222,39 @@ public class LASER_Teleop extends LinearOpMode {
                 keyB = false;
             }
 
-            // HORIZONTAL SLIDE CONTROLS
-            slideHorizontal.setPower(0);
-            if (VslideInput > 0.1 || VslideInput < -0.1) {
-                slideVertical.setPower(VslideInput);
+            // VERTICAL SLIDE CONTROLS
+            slideVertical.setPower(0);
+            if (C_VERT_SLIDE_U > 0.1 || C_VERT_SLIDE_U < -0.1) {
+                slideVertical.setPower(C_VERT_SLIDE_U);
             } else {
-                if (gamepad1.left_bumper) {
+                if (C_VERT_SLIDE_D) {
                     slideVertical.setPower(-1);
                 } else {
-                    slideVertical.setPower(gamepad1.left_trigger);
+                    slideVertical.setPower(0.05);
                 }
             }
 
-            // VERTICAL SLIDE CONTROLS
+            // HORIZONTAL SLIDE CONTROLS
             slideHorizontal.setPower(0);
-            if (HslideInput > 0.1 || HslideInput < -0.1) {
-                slideHorizontal.setPower(HslideInput);
+            if (C_DWN_SLIDE_U > 0.1 || C_DWN_SLIDE_U < -0.1) {
+                slideHorizontal.setPower(C_DWN_SLIDE_U);
             } else {
-                if (gamepad1.right_bumper) {
+                if (C_DWN_SLIDE_D) {
                     slideHorizontal.setPower(-1);
                 } else {
-                    slideHorizontal.setPower(gamepad1.right_trigger);
+                    slideHorizontal.setPower(0);
                 }
             }
 
             // OUTTAKE SERVO CONTROLS
-            if (!gamepad1.y) {
-                outtakeServoPosition += SERVO_SPEED * speed;
-                if (outtakeServoPosition >= OUT_SERVO_UP_POS) {
+            if (C_OUT_SERVO) {
+                outtakeServoPosition += SERVO_SPEED;
+                if (outtakeServoPosition <= OUT_SERVO_UP_POS) {
                     outtakeServoPosition = OUT_SERVO_UP_POS;
                 }
             } else {
-                outtakeServoPosition -= SERVO_SPEED * speed;
-                if (outtakeServoPosition <= OUT_SERVO_DOWN_POS) {
+                outtakeServoPosition -= SERVO_SPEED;
+                if (outtakeServoPosition >= OUT_SERVO_DOWN_POS) {
                     outtakeServoPosition = OUT_SERVO_DOWN_POS;
                 }
             }
