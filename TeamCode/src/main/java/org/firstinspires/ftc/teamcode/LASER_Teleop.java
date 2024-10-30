@@ -77,7 +77,7 @@ public class LASER_Teleop extends LinearOpMode {
     private DcMotor rightBackDrive  = null;
     private DcMotor slideVertical   = null;
     private DcMotor slideHorizontal = null;
-    Servo outtakeServo;
+    private Servo   outtakeServo;
 
     @Override
     public void runOpMode() {
@@ -125,6 +125,11 @@ public class LASER_Teleop extends LinearOpMode {
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
         slideVertical.setDirection(DcMotor.Direction.FORWARD);
         slideHorizontal.setDirection(DcMotor.Direction.FORWARD);
+
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
