@@ -18,6 +18,7 @@ public class Encoder_Test extends LinearOpMode {
 
         motor = hardwareMap.get(DcMotor.class, "motor");
         motor.setDirection(DcMotor.Direction.FORWARD);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -25,16 +26,24 @@ public class Encoder_Test extends LinearOpMode {
         runtime.reset();
 
         while (opModeIsActive()) {
+            telemetry.addData("runtime ", runtime);
+            telemetry.addData("motorPos", motor.getCurrentPosition());
+            telemetry.update();
 
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setTargetPosition(1000);
             motor.setPower(1.0);
-            motor.setTargetPosition((int)(1000));
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(1000);
-            motor.setTargetPosition((int)(0));
-            sleep(1000);
+            while (motor.isBusy()) {}
             motor.setPower(0.0);
+            sleep(1000);
 
+            motor.setTargetPosition(0);
+            motor.setPower(1.0);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            while (motor.isBusy()) {}
+            motor.setPower(0.0);
+            sleep(1000);
         }
     }
 }
