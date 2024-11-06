@@ -78,6 +78,7 @@ public class LASER_Teleop extends LinearOpMode {
     private DcMotor slideVertical   = null;
     private DcMotor slideHorizontal = null;
     private Servo   outtakeServo;
+    private Servo   intakeServo;
 
     @Override
     public void runOpMode() {
@@ -89,8 +90,8 @@ public class LASER_Teleop extends LinearOpMode {
         int invDir = 1;    // used to activate inverted direction
         boolean keyA = false, keyB = false;    // used for toggle keys
 
-        double C_LATERAL, C_AXIAL, C_YAW, C_VERT_SLIDE_U, C_DWN_SLIDE_U;
-        boolean C_HALF_SPEED, C_INV_DIR, C_VERT_SLIDE_D, C_DWN_SLIDE_D, C_OUT_SERVO;
+        double C_LATERAL, C_AXIAL, C_YAW, C_VERT_SLIDE;
+        boolean C_HALF_SPEED, C_INV_DIR, C_HORIZ_SLIDE_OUT, C_HORIZ_SLIDE_IN, C_OUT_SERVO, C_IN_SERVO_TRANSF;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -101,6 +102,7 @@ public class LASER_Teleop extends LinearOpMode {
         slideVertical   = hardwareMap.get(DcMotor.class, "vertical_slide");
         slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
 
+        intakeServo  = hardwareMap.get(Servo.class, "intake_servo");
         outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
         final double OUT_SERVO_DOWN_POS = 1.0;
         final double OUT_SERVO_UP_POS   = 0.55;
@@ -126,6 +128,7 @@ public class LASER_Teleop extends LinearOpMode {
         slideVertical.setDirection(DcMotor.Direction.FORWARD);
         slideHorizontal.setDirection(DcMotor.Direction.FORWARD);
 
+
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -142,16 +145,16 @@ public class LASER_Teleop extends LinearOpMode {
         while (opModeIsActive()) {
 
             // KEYBINDS
-            C_AXIAL        = gamepad1.left_stick_y;
-            C_LATERAL      = gamepad1.left_stick_x;
-            C_YAW          = gamepad1.right_stick_x;
-            C_HALF_SPEED   = gamepad1.a;
-            C_INV_DIR      = gamepad1.b;
-            C_VERT_SLIDE_U = gamepad2.right_trigger;
-            C_DWN_SLIDE_U  = gamepad2.left_trigger;
-            C_VERT_SLIDE_D = gamepad2.right_bumper;
-            C_DWN_SLIDE_D  = gamepad2.left_bumper;
-            C_OUT_SERVO    = gamepad2.y;
+            C_AXIAL           = gamepad1.left_stick_y;
+            C_LATERAL         = gamepad1.left_stick_x;
+            C_YAW             = gamepad1.right_stick_x;
+            C_HALF_SPEED      = gamepad1.a;
+            C_INV_DIR         = gamepad1.b;
+            C_VERT_SLIDE      = gamepad2.left_stick_y;
+            C_HORIZ_SLIDE_OUT = gamepad2.y;
+            C_HORIZ_SLIDE_IN  = gamepad2.x;
+            C_OUT_SERVO       = gamepad2.right_bumper;
+            C_IN_SERVO_TRANSF = gamepad2.left_bumper;
 
             double max;
 
@@ -228,27 +231,15 @@ public class LASER_Teleop extends LinearOpMode {
             }
 
             // VERTICAL SLIDE CONTROLS
-            slideVertical.setPower(0);
-            if (C_VERT_SLIDE_U > 0.1 || C_VERT_SLIDE_U < -0.1) {
-                slideVertical.setPower(C_VERT_SLIDE_U);
-            } else {
-                if (C_VERT_SLIDE_D) {
-                    slideVertical.setPower(-1);
-                } else {
-                    slideVertical.setPower(0.05);
-                }
-            }
+            slideVertical.setPower(C_VERT_SLIDE);
 
             // HORIZONTAL SLIDE CONTROLS
             slideHorizontal.setPower(0);
-            if (C_DWN_SLIDE_U > 0.1 || C_DWN_SLIDE_U < -0.1) {
-                slideHorizontal.setPower(C_DWN_SLIDE_U);
-            } else {
-                if (C_DWN_SLIDE_D) {
-                    slideHorizontal.setPower(-1);
-                } else {
-                    slideHorizontal.setPower(0);
-                }
+            if (C_HORIZ_SLIDE_OUT) {
+
+                slideHorizontal.setPower(1);
+            } else if (C_HORIZ_SLIDE_IN) {
+                slideHorizontal.setPower(-1);
             }
 
             // OUTTAKE SERVO CONTROLS
@@ -265,12 +256,17 @@ public class LASER_Teleop extends LinearOpMode {
             }
             outtakeServo.setPosition(outtakeServoPosition);
 
+            // SERVO TRANSFER CONTROLS
+            intakeServo.setPosition(0.5);
+            if (C_IN_SERVO_TRANSF) {
+                intakeServo.setPosition(1.0);
+            }
+
             // Send calculated power to wheels
             leftFrontDrive.setPower(leftFrontPower * speed * invDir);
             rightFrontDrive.setPower(rightFrontPower * speed * invDir);
             leftBackDrive.setPower(leftBackPower * speed * invDir);
             rightBackDrive.setPower(rightBackPower * speed * invDir);
-            outtakeServo.setPosition(outtakeServoPosition);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
