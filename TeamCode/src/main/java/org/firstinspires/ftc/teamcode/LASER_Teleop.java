@@ -76,6 +76,7 @@ public class LASER_Teleop extends LinearOpMode {
     private DcMotor rightBackDrive  = null;
     private DcMotor slideVertical   = null;
     private DcMotor slideHorizontal = null;
+    private DcMotor wristMotor      = null;
     private Servo   outtakeServo;
     private Servo   intakeServo;
 
@@ -89,8 +90,9 @@ public class LASER_Teleop extends LinearOpMode {
         int invDir = 1;    // used to activate inverted direction
         boolean keyA = false, keyB = false;    // used for toggle keys
 
-        double C_LATERAL, C_AXIAL, C_YAW, C_VERT_SLIDE;
-        boolean C_HALF_SPEED, C_INV_DIR, C_HORIZ_SLIDE_OUT, C_HORIZ_SLIDE_IN, C_OUT_SERVO, C_IN_SERVO_TRANSF;
+        double C_LATERAL, C_AXIAL, C_YAW, C_VERT_SLIDE, C_HORIZ_SLIDE;
+        boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO, C_IN_SERVO_TRANSF, C_INTAKE, PREV_C_INTAKE;
+        PREV_C_INTAKE = false;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -103,12 +105,19 @@ public class LASER_Teleop extends LinearOpMode {
 
         intakeServo  = hardwareMap.get(Servo.class, "intake_servo");
         outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
-        final double OUT_SERVO_DOWN_POS = 1.0;
-        final double OUT_SERVO_UP_POS   = 0.55;
+        final double OUT_SERVO_DOWN_POS = 0.75;
+        final double OUT_SERVO_UP_POS   = 0.2;
         final double SERVO_SPEED        = -0.1;
         double outtakeServoPosition     = outtakeServo.getPosition();
 
-
+        wristMotor = hardwareMap.get(DcMotor.class, "wrist_drive");
+        wristMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        wristMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        wristMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wristMotor.setTargetPosition(0);
+        wristMotor.setPower(0.5);
+        wristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        double targetTime = 0.0;
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -124,9 +133,8 @@ public class LASER_Teleop extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
-        slideVertical.setDirection(DcMotor.Direction.FORWARD);
-        slideHorizontal.setDirection(DcMotor.Direction.FORWARD);
-
+        slideVertical.setDirection(DcMotor.Direction.REVERSE);
+        slideHorizontal.setDirection(DcMotor.Direction.REVERSE);
 
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -149,11 +157,11 @@ public class LASER_Teleop extends LinearOpMode {
             C_YAW             = gamepad1.right_stick_x;
             C_HALF_SPEED      = gamepad1.a;
             C_INV_DIR         = gamepad1.b;
-            C_VERT_SLIDE      = gamepad2.left_stick_y;
-            C_HORIZ_SLIDE_OUT = gamepad2.y;
-            C_HORIZ_SLIDE_IN  = gamepad2.x;
+            C_VERT_SLIDE      = gamepad2.right_stick_y;
+            C_HORIZ_SLIDE     = gamepad2.left_stick_y;
             C_OUT_SERVO       = gamepad2.right_bumper;
             C_IN_SERVO_TRANSF = gamepad2.left_bumper;
+            C_INTAKE          = gamepad2.y;
 
             double max;
 
@@ -233,13 +241,7 @@ public class LASER_Teleop extends LinearOpMode {
             slideVertical.setPower(C_VERT_SLIDE);
 
             // HORIZONTAL SLIDE CONTROLS
-            slideHorizontal.setPower(0);
-            if (C_HORIZ_SLIDE_OUT) {
-
-                slideHorizontal.setPower(1);
-            } else if (C_HORIZ_SLIDE_IN) {
-                slideHorizontal.setPower(-1);
-            }
+            slideHorizontal.setPower(C_HORIZ_SLIDE);
 
             // OUTTAKE SERVO CONTROLS
             if (C_OUT_SERVO) {
@@ -261,6 +263,32 @@ public class LASER_Teleop extends LinearOpMode {
                 intakeServo.setPosition(1.0);
             }
 
+            // INTAKE WRIST CONTROLS
+            if (C_INTAKE) {
+                wristMotor.setTargetPosition(175);
+                intakeServo.setPosition(1.0);
+            } else {
+                wristMotor.setTargetPosition(0);
+                intakeServo.setPosition(0.5);
+            }
+            /*
+            if (C_INTAKE) {
+                wristMotor.setTargetPosition(100);
+                intakeServo.setPosition(1.0);
+                wristMotor.setPower(0.4);
+                if (wristMotor.getCurrentPosition() > wristMotor.getTargetPosition()) {
+                    wristMotor.setPower(0.0);
+                }
+            } else {
+                wristMotor.setTargetPosition(0);
+                intakeServo.setPosition(0.5);
+                wristMotor.setPower(0.5);
+                if (wristMotor.getCurrentPosition() < wristMotor.getTargetPosition()) {
+                    wristMotor.setPower(0.0);
+                }
+            }
+            */
+
             // Send calculated power to wheels
             leftFrontDrive.setPower(leftFrontPower * speed * invDir);
             rightFrontDrive.setPower(rightFrontPower * speed * invDir);
@@ -268,14 +296,19 @@ public class LASER_Teleop extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower * speed * invDir);
 
             // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("Status", "Run Time:" + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
             telemetry.addData("Speed", "%4.2f", speed);
             telemetry.addData("Invert Direction", "%1b", invertDir);
             telemetry.addData("Servo Position", "%4.2f", outtakeServoPosition);
             telemetry.addData("Servo Position", "%4.2f", outtakeServo.getPosition());
-            telemetry.update();
+            telemetry.addData("Wrist Position", "%4,2f", (double)wristMotor.getCurrentPosition()); //??
+            telemetry.addData("Wrist Power", "%4,2f", wristMotor.getPower()); //??
+
+            //telemetry.update();
+
+            PREV_C_INTAKE = C_INTAKE;
 
             sleep(CYCLE_MS);
         }
