@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.SampleAutos;
 
 import androidx.annotation.NonNull;
 
@@ -21,8 +21,8 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Config
 @Autonomous(name = "SampleAutoBR", group = "Autonomous")
-//Blue Right if you face the exit door
-public class SampleAutoBR extends LinearOpMode {
+//Next to red net zone. Once completed, should grab the two samples closest to the exit doors
+public class TwoSamples extends LinearOpMode {
 
     //variable
 
@@ -30,7 +30,18 @@ public class SampleAutoBR extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         //instantiation
-        Pose2d initialPose = new Pose2d(0, 0, 0);
+        Pose2d initialPose = new Pose2d(0, 24, Math.PI / 2);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
+
+
+        waitForStart();
+
+        Actions.runBlocking(
+                drive.actionBuilder(initialPose)
+                        .lineToX(50)
+                        .lineToY(4)
+                        .lineToX(5)
+                        .lineToY(100)
+                        .build());
     }
 }
