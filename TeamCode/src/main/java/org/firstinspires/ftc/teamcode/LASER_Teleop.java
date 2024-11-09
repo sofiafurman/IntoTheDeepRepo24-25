@@ -258,14 +258,15 @@ public class LASER_Teleop extends LinearOpMode {
             outtakeServo.setPosition(outtakeServoPosition);
 
             // SERVO TRANSFER CONTROLS
-            intakeServo.setPosition(0.5);
             if (C_IN_SERVO_TRANSF) {
                 intakeServo.setPosition(1.0);
+            } else {
+                intakeServo.setPosition(0.5);
             }
 
             // INTAKE WRIST CONTROLS
             if (C_INTAKE) {
-                wristMotor.setTargetPosition(175);
+                wristMotor.setTargetPosition(200);
                 intakeServo.setPosition(1.0);
             } else {
                 wristMotor.setTargetPosition(0);
