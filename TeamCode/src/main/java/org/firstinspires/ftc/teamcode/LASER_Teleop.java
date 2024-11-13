@@ -91,7 +91,7 @@ public class LASER_Teleop extends LinearOpMode {
         boolean keyA = false, keyB = false;    // used for toggle keys
 
         double C_LATERAL, C_AXIAL, C_YAW, C_VERT_SLIDE, C_HORIZ_SLIDE;
-        boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO, C_IN_SERVO_TRANSF, C_INTAKE, PREV_C_INTAKE;
+        boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO, C_IN_SERVO_TRANSF, C_INTAKE, C_IN_SERVO_SPIT, PREV_C_INTAKE;
         PREV_C_INTAKE = false;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
@@ -105,7 +105,7 @@ public class LASER_Teleop extends LinearOpMode {
 
         intakeServo  = hardwareMap.get(Servo.class, "intake_servo");
         outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
-        final double OUT_SERVO_DOWN_POS = 0.75;
+        final double OUT_SERVO_DOWN_POS = 0.70;
         final double OUT_SERVO_UP_POS   = 0.2;
         final double SERVO_SPEED        = -0.1;
         double outtakeServoPosition     = outtakeServo.getPosition();
@@ -161,6 +161,7 @@ public class LASER_Teleop extends LinearOpMode {
             C_HORIZ_SLIDE     = gamepad2.left_stick_y;
             C_OUT_SERVO       = gamepad2.right_bumper;
             C_IN_SERVO_TRANSF = gamepad2.left_bumper;
+            C_IN_SERVO_SPIT   = gamepad1.x;
             C_INTAKE          = gamepad2.y;
 
             double max;
@@ -250,6 +251,11 @@ public class LASER_Teleop extends LinearOpMode {
                     outtakeServoPosition = OUT_SERVO_UP_POS;
                 }
             } else {
+                /*
+                if ((Math.abs(C_VERT_SLIDE) > 0.1) && !C_OUT_SERVO) {
+                    outtakeServoPosition = OUT_SERVO_DOWN_POS + 0.3;
+                }
+                */
                 outtakeServoPosition -= SERVO_SPEED;
                 if (outtakeServoPosition >= OUT_SERVO_DOWN_POS) {
                     outtakeServoPosition = OUT_SERVO_DOWN_POS;
@@ -257,20 +263,24 @@ public class LASER_Teleop extends LinearOpMode {
             }
             outtakeServo.setPosition(outtakeServoPosition);
 
-            // SERVO TRANSFER CONTROLS
-            if (C_IN_SERVO_TRANSF) {
+            // INTAKE SERVO / TRANSFER CONTROLS
+            if (C_IN_SERVO_TRANSF && !C_INTAKE) {
                 intakeServo.setPosition(1.0);
+            } else if (C_IN_SERVO_SPIT) {
+                intakeServo.setPosition(0.0);
             } else {
                 intakeServo.setPosition(0.5);
             }
 
             // INTAKE WRIST CONTROLS
             if (C_INTAKE) {
-                wristMotor.setTargetPosition(200);
+                wristMotor.setTargetPosition(220);
                 intakeServo.setPosition(1.0);
             } else {
                 wristMotor.setTargetPosition(0);
-                intakeServo.setPosition(0.5);
+                if (!C_IN_SERVO_TRANSF && !C_IN_SERVO_SPIT) {
+                    intakeServo.setPosition(0.5);
+                }
             }
             /*
             if (C_INTAKE) {
@@ -304,10 +314,10 @@ public class LASER_Teleop extends LinearOpMode {
             telemetry.addData("Invert Direction", "%1b", invertDir);
             telemetry.addData("Servo Position", "%4.2f", outtakeServoPosition);
             telemetry.addData("Servo Position", "%4.2f", outtakeServo.getPosition());
-            telemetry.addData("Wrist Position", "%4,2f", (double)wristMotor.getCurrentPosition()); //??
-            telemetry.addData("Wrist Power", "%4,2f", wristMotor.getPower()); //??
+            telemetry.addData("Wrist Position", "%4.2f", (double)wristMotor.getCurrentPosition()); //??
+            telemetry.addData("Wrist Power", "%4.2f", wristMotor.getPower()); //??
 
-            //telemetry.update();
+            telemetry.update();
 
             PREV_C_INTAKE = C_INTAKE;
 
