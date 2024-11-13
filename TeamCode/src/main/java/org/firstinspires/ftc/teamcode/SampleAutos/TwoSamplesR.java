@@ -48,19 +48,18 @@ public class TwoSamplesR extends LinearOpMode{
 
         Actions.runBlocking(
                 drive.actionBuilder(beginPose)
-                        .lineToX(48)
+                        .lineToX(44)
                         .setTangent(Math.PI / 2)
-                        .lineToY(14) //still not working?
+                        .lineToY(8)
                         .setTangent(0)
-                        .lineToX(3)
+                        .lineToX(3.7)
+                        .lineToX(20)
                         .setTangent(Math.PI / 2)
-                        .lineToY(-140)
+                        .lineToY(-80)
+                        .setTangent(0)
+                        .lineToX(2)
                         .build());
 
-        /*leftFrontDrive.setPower(0.1);
-        leftBackDrive.setPower(0.1);
-        rightFrontDrive.setPower(0.1);
-        rightBackDrive.setPower(0.1);*/
 
 
     }
