@@ -26,9 +26,10 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 
 @Config
-@Autonomous(name = "TwoSamples", group = "Autonomous")
-//Next to red net zone. Once completed, should grab the two samples closest to the exit doors
-public class TwoSamples extends LinearOpMode {
+@Autonomous(name = "Scrimmage Blue", group = "Autonomous")
+
+//Back left wheel touching edge of red net zone tape (tape fully visible)
+public class TwoSamplesBlue extends LinearOpMode{
     private DcMotor leftFrontDrive  = null;
     private DcMotor leftBackDrive   = null;
     private DcMotor rightFrontDrive = null;
@@ -46,7 +47,7 @@ public class TwoSamples extends LinearOpMode {
 
 
 
-        Pose2d beginPose = new Pose2d(0, 24, 0);
+        Pose2d beginPose = new Pose2d(0, 0, 0);
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
 
@@ -61,9 +62,22 @@ public class TwoSamples extends LinearOpMode {
                 drive.actionBuilder(beginPose)
                         .lineToX(48)
                         .setTangent(Math.PI / 2)
-                        .lineToY(-4)
-                        //.lineToX(5)
-                       // .lineToY(100)
+                        .lineToY(10)
+                        .setTangent(0)
+                        .build());
+        //FACING BLUE: LEFT IS LESS, RIGHT IS MORE
+
+        leftFrontDrive.setPower(0.1);
+        leftBackDrive.setPower(0.1);
+        rightFrontDrive.setPower(0.1);
+        rightBackDrive.setPower(0.1);
+
+        Actions.runBlocking(
+                drive.actionBuilder(beginPose)
+                        .setTangent(0)
+                        .lineToX(2)
+                        .setTangent(-Math.PI / 2)
+                        .lineToY(-140)
                         .build());
     }
 }
