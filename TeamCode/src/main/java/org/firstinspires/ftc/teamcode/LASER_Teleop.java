@@ -161,7 +161,7 @@ public class LASER_Teleop extends LinearOpMode {
             C_HORIZ_SLIDE     = gamepad2.left_stick_y;
             C_OUT_SERVO       = gamepad2.right_bumper;
             C_IN_SERVO_TRANSF = gamepad2.left_bumper;
-            C_IN_SERVO_SPIT   = gamepad1.x;
+            C_IN_SERVO_SPIT   = gamepad2.x;
             C_INTAKE          = gamepad2.y;
 
             double max;
@@ -274,9 +274,11 @@ public class LASER_Teleop extends LinearOpMode {
 
             // INTAKE WRIST CONTROLS
             if (C_INTAKE) {
+                wristMotor.setPower(0.1);
                 wristMotor.setTargetPosition(220);
                 intakeServo.setPosition(1.0);
             } else {
+                wristMotor.setPower(0.5);
                 wristMotor.setTargetPosition(0);
                 if (!C_IN_SERVO_TRANSF && !C_IN_SERVO_SPIT) {
                     intakeServo.setPosition(0.5);
