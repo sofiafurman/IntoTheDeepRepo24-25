@@ -48,13 +48,16 @@ public class TwoSamplesB extends LinearOpMode {
 
         Actions.runBlocking(
                 drive.actionBuilder(beginPose)
-                        .lineToX(48)
+                        .lineToX(44)
                         .setTangent(Math.PI / 2)
-                        .lineToY(20)
+                        .lineToY(8)
+                        .setTangent(0)
+                        .lineToX(3.7)
+                        .lineToX(20)
+                        .setTangent(Math.PI / 2)
+                        .lineToY(-80)
                         .setTangent(0)
                         .lineToX(2)
-                        .setTangent(Math.PI / 2)
-                       .lineToY(140)
                         .build());
     }
 }

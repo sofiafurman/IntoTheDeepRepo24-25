@@ -50,17 +50,16 @@ public class TwoSamplesR extends LinearOpMode{
                 drive.actionBuilder(beginPose)
                         .lineToX(44)
                         .setTangent(Math.PI / 2)
-                        .lineToY(22)
+                        .lineToY(8)
+                        .setTangent(0)
+                        .lineToX(3.7)
+                        .lineToX(20)
+                        .setTangent(Math.PI / 2)
+                        .lineToY(-80)
                         .setTangent(0)
                         .lineToX(2)
-                        .setTangent(Math.PI / 2)
-                        .lineToY(-120)
                         .build());
 
-        /*leftFrontDrive.setPower(0.1);
-        leftBackDrive.setPower(0.1);
-        rightFrontDrive.setPower(0.1);
-        rightBackDrive.setPower(0.1);*/
 
 
     }
