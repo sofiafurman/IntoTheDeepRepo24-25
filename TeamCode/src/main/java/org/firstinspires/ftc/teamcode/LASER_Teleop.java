@@ -105,8 +105,8 @@ public class LASER_Teleop extends LinearOpMode {
 
         intakeServo  = hardwareMap.get(Servo.class, "intake_servo");
         outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
-        final double OUT_SERVO_DOWN_POS = 0.70;
-        final double OUT_SERVO_UP_POS   = 0.2;
+        final double OUT_SERVO_DOWN_POS = 0.65;
+        final double OUT_SERVO_UP_POS   = 0.12;
         final double SERVO_SPEED        = -0.1;
         double outtakeServoPosition     = outtakeServo.getPosition();
 
