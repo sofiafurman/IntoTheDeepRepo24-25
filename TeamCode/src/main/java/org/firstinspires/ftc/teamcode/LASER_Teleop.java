@@ -90,8 +90,8 @@ public class LASER_Teleop extends LinearOpMode {
         int invDir = 1;    // used to activate inverted direction
         boolean keyA = false, keyB = false;    // used for toggle keys
 
-        double C_LATERAL, C_AXIAL, C_YAW, C_VERT_SLIDE, C_HORIZ_SLIDE;
-        boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO, C_IN_SERVO_TRANSF, C_INTAKE, C_IN_SERVO_SPIT, PREV_C_INTAKE;
+        double C_LATERAL, C_AXIAL, C_YAW, C_HORIZ_SLIDE;
+        boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO, C_IN_SERVO_TRANSF, C_INTAKE, C_IN_SERVO_SPIT, PREV_C_INTAKE, C_VERT_SLIDE = false, PREV_C_VERT_SLIDE;
         PREV_C_INTAKE = false;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
@@ -100,15 +100,22 @@ public class LASER_Teleop extends LinearOpMode {
         leftBackDrive   = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
-        slideVertical   = hardwareMap.get(DcMotor.class, "vertical_slide");
         slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
 
         intakeServo  = hardwareMap.get(Servo.class, "intake_servo");
         outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
         final double OUT_SERVO_DOWN_POS = 0.65;
         final double OUT_SERVO_UP_POS   = 0.12;
-        final double SERVO_SPEED        = -0.1;
+        final double SERVO_SPEED        = -0.5;
         double outtakeServoPosition     = outtakeServo.getPosition();
+
+        slideVertical = hardwareMap.get(DcMotor.class, "vertical_slide");
+        slideVertical.setDirection(DcMotor.Direction.FORWARD);
+        slideVertical.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slideVertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideVertical.setTargetPosition(0);
+        slideVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        int vSlideMotorState = 0;
 
         wristMotor = hardwareMap.get(DcMotor.class, "wrist_drive");
         wristMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -133,7 +140,6 @@ public class LASER_Teleop extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
-        slideVertical.setDirection(DcMotor.Direction.REVERSE);
         slideHorizontal.setDirection(DcMotor.Direction.REVERSE);
 
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -157,7 +163,8 @@ public class LASER_Teleop extends LinearOpMode {
             C_YAW             = gamepad1.right_stick_x;
             C_HALF_SPEED      = gamepad1.a;
             C_INV_DIR         = gamepad1.b;
-            C_VERT_SLIDE      = gamepad2.right_stick_y;
+            PREV_C_VERT_SLIDE = C_VERT_SLIDE;
+            C_VERT_SLIDE      = gamepad2.b;
             C_HORIZ_SLIDE     = gamepad2.left_stick_y;
             C_OUT_SERVO       = gamepad2.right_bumper;
             C_IN_SERVO_TRANSF = gamepad2.left_bumper;
@@ -239,7 +246,35 @@ public class LASER_Teleop extends LinearOpMode {
             }
 
             // VERTICAL SLIDE CONTROLS
-            slideVertical.setPower(C_VERT_SLIDE);
+            // 157 = 1 INCH
+            if (C_VERT_SLIDE && !PREV_C_VERT_SLIDE) {
+                switch (vSlideMotorState) {
+                    case 0:
+                        vSlideMotorState = 1;
+                        slideVertical.setTargetPosition(0);
+                        slideVertical.setPower(0.5);
+                        while (slideVertical.isBusy()) {}
+                        slideVertical.setPower(0.0);
+                        sleep(1000);
+                        break;
+                    case 1:
+                        vSlideMotorState = 2;
+                        slideVertical.setTargetPosition(2512);
+                        slideVertical.setPower(0.5);
+                        while (slideVertical.isBusy()) {}
+                        slideVertical.setPower(0.025);
+                        sleep(1000);
+                        break;
+                    case 2:
+                        vSlideMotorState = 0;
+                        slideVertical.setTargetPosition(5024);
+                        slideVertical.setPower(0.5);
+                        while (slideVertical.isBusy()) {}
+                        slideVertical.setPower(0.05);
+                        sleep(1000);
+                        break;
+                }
+            }
 
             // HORIZONTAL SLIDE CONTROLS
             slideHorizontal.setPower(C_HORIZ_SLIDE);
@@ -318,6 +353,7 @@ public class LASER_Teleop extends LinearOpMode {
             telemetry.addData("Servo Position", "%4.2f", outtakeServo.getPosition());
             telemetry.addData("Wrist Position", "%4.2f", (double)wristMotor.getCurrentPosition()); //??
             telemetry.addData("Wrist Power", "%4.2f", wristMotor.getPower()); //??
+            telemetry.addData("vSlidePos", slideVertical.getCurrentPosition());
 
             telemetry.update();
 
