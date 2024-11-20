@@ -91,8 +91,8 @@ public class LASER_Teleop extends LinearOpMode {
         boolean keyA = false, keyB = false;    // used for toggle keys
 
         double C_LATERAL, C_AXIAL, C_YAW, C_HORIZ_SLIDE;
-        boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO, C_IN_SERVO_TRANSF, C_INTAKE, C_IN_SERVO_SPIT, PREV_C_INTAKE, C_VERT_SLIDE = false, PREV_C_VERT_SLIDE;
-        PREV_C_INTAKE = false;
+        boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO, C_IN_SERVO_TRANSF, C_INTAKE, C_IN_SERVO_SPIT,
+                PREV_C_INTAKE, C_VERT_SLIDE_UP = false, PREV_C_VERT_SLIDE_UP = false, C_VERT_SLIDE_DWN = false, PREV_C_VERT_SLIDE_DWN = false;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -115,6 +115,7 @@ public class LASER_Teleop extends LinearOpMode {
         slideVertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideVertical.setTargetPosition(0);
         slideVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slideVertical.setPower(0.5);
         int vSlideMotorState = 0;
 
         wristMotor = hardwareMap.get(DcMotor.class, "wrist_drive");
@@ -158,18 +159,20 @@ public class LASER_Teleop extends LinearOpMode {
         while (opModeIsActive()) {
 
             // KEYBINDS
-            C_AXIAL           = gamepad1.left_stick_y;
-            C_LATERAL         = gamepad1.left_stick_x;
-            C_YAW             = gamepad1.right_stick_x;
-            C_HALF_SPEED      = gamepad1.a;
-            C_INV_DIR         = gamepad1.b;
-            PREV_C_VERT_SLIDE = C_VERT_SLIDE;
-            C_VERT_SLIDE      = gamepad2.b;
-            C_HORIZ_SLIDE     = gamepad2.left_stick_y;
-            C_OUT_SERVO       = gamepad2.right_bumper;
-            C_IN_SERVO_TRANSF = gamepad2.left_bumper;
-            C_IN_SERVO_SPIT   = gamepad2.x;
-            C_INTAKE          = gamepad2.y;
+            C_AXIAL               = gamepad1.left_stick_y;
+            C_LATERAL             = gamepad1.left_stick_x;
+            C_YAW                 = gamepad1.right_stick_x;
+            C_HALF_SPEED          = gamepad1.a;
+            C_INV_DIR             = gamepad1.b;
+            PREV_C_VERT_SLIDE_UP  = C_VERT_SLIDE_UP;
+            C_VERT_SLIDE_UP       = gamepad2.right_bumper;
+            PREV_C_VERT_SLIDE_DWN = C_VERT_SLIDE_DWN;
+            C_VERT_SLIDE_DWN      = gamepad2.left_bumper;
+            C_HORIZ_SLIDE         = gamepad2.left_stick_y;
+            C_OUT_SERVO           = gamepad2.b;
+            C_IN_SERVO_TRANSF     = gamepad2.y;
+            C_IN_SERVO_SPIT       = gamepad2.x;
+            C_INTAKE              = gamepad2.a;
 
             double max;
 
@@ -220,10 +223,8 @@ public class LASER_Teleop extends LinearOpMode {
                 if (keyA == false) {
                     keyA = !keyA;
                     switch ((int)(speed * 10)) {
-                        case 10 : speed = 0.7; break;
-                        case 7 : speed = 0.5; break;
-                        case 5 : speed = 0.3; break;
-                        case 3 : speed = 1.0; break;
+                        case 10 : speed = 0.5; break;
+                        case 5 : speed = 1.0; break;
                     }
                 }
             } else {
@@ -247,33 +248,20 @@ public class LASER_Teleop extends LinearOpMode {
 
             // VERTICAL SLIDE CONTROLS
             // 157 = 1 INCH
-            if (C_VERT_SLIDE && !PREV_C_VERT_SLIDE) {
-                switch (vSlideMotorState) {
-                    case 0:
-                        vSlideMotorState = 1;
-                        slideVertical.setTargetPosition(0);
-                        slideVertical.setPower(0.5);
-                        while (slideVertical.isBusy()) {}
-                        slideVertical.setPower(0.0);
-                        sleep(1000);
-                        break;
-                    case 1:
-                        vSlideMotorState = 2;
-                        slideVertical.setTargetPosition(2512);
-                        slideVertical.setPower(0.5);
-                        while (slideVertical.isBusy()) {}
-                        slideVertical.setPower(0.025);
-                        sleep(1000);
-                        break;
-                    case 2:
-                        vSlideMotorState = 0;
-                        slideVertical.setTargetPosition(5024);
-                        slideVertical.setPower(0.5);
-                        while (slideVertical.isBusy()) {}
-                        slideVertical.setPower(0.05);
-                        sleep(1000);
-                        break;
-                }
+            switch (vSlideMotorState) {
+                case 0:
+                    if (C_VERT_SLIDE_UP && !PREV_C_VERT_SLIDE_UP) {vSlideMotorState = 1;}
+                    slideVertical.setTargetPosition(0);
+                    break;
+                case 1:
+                    if (C_VERT_SLIDE_UP && !PREV_C_VERT_SLIDE_UP) {vSlideMotorState = 2;}
+                    else if (C_VERT_SLIDE_DWN && !PREV_C_VERT_SLIDE_DWN) {vSlideMotorState = 0;}
+                    slideVertical.setTargetPosition(2512);
+                    break;
+                case 2:
+                    if (C_VERT_SLIDE_DWN && !PREV_C_VERT_SLIDE_DWN) {vSlideMotorState = 1;}
+                    slideVertical.setTargetPosition(5024);
+                    break;
             }
 
             // HORIZONTAL SLIDE CONTROLS
@@ -353,6 +341,11 @@ public class LASER_Teleop extends LinearOpMode {
             telemetry.addData("Servo Position", "%4.2f", outtakeServo.getPosition());
             telemetry.addData("Wrist Position", "%4.2f", (double)wristMotor.getCurrentPosition()); //??
             telemetry.addData("Wrist Power", "%4.2f", wristMotor.getPower()); //??
+            telemetry.addData("Slide Level", vSlideMotorState);
+            telemetry.addData("  slideup", C_VERT_SLIDE_UP);
+            telemetry.addData("  prevslideup", PREV_C_VERT_SLIDE_UP);
+            telemetry.addData("  slidedown", C_VERT_SLIDE_DWN);
+            telemetry.addData("  prevslidedown", PREV_C_VERT_SLIDE_DWN);
             telemetry.addData("vSlidePos", slideVertical.getCurrentPosition());
 
             telemetry.update();
