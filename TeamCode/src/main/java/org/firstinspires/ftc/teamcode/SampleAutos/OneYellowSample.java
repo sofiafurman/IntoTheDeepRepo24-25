@@ -14,10 +14,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 
 @Config
-@Autonomous(name = "Scrimmage Red", group = "Autonomous")
+@Autonomous(name = "1 yellow sample", group = "Autonomous")
 
 //Back left wheel touching edge of red net zone tape (tape fully visible)
-public class TwoSamplesR extends LinearOpMode{
+public class OneYellowSample extends LinearOpMode{
     private DcMotor leftFrontDrive  = null;
     private DcMotor leftBackDrive   = null;
     private DcMotor rightFrontDrive = null;
