@@ -106,7 +106,7 @@ public class LASER_Teleop extends LinearOpMode {
         outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
         final double OUT_SERVO_DOWN_POS = 0.65;
         final double OUT_SERVO_UP_POS   = 0.12;
-        final double SERVO_SPEED        = -0.5;
+        final double SERVO_SPEED        = -1;
         double outtakeServoPosition     = outtakeServo.getPosition();
 
         slideVertical = hardwareMap.get(DcMotor.class, "vertical_slide");
@@ -115,7 +115,7 @@ public class LASER_Teleop extends LinearOpMode {
         slideVertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideVertical.setTargetPosition(0);
         slideVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slideVertical.setPower(0.5);
+        slideVertical.setPower(1.0);
         int vSlideMotorState = 0;
 
         wristMotor = hardwareMap.get(DcMotor.class, "wrist_drive");
@@ -256,7 +256,7 @@ public class LASER_Teleop extends LinearOpMode {
                 case 1:
                     if (C_VERT_SLIDE_UP && !PREV_C_VERT_SLIDE_UP) {vSlideMotorState = 2;}
                     else if (C_VERT_SLIDE_DWN && !PREV_C_VERT_SLIDE_DWN) {vSlideMotorState = 0;}
-                    slideVertical.setTargetPosition(2512);
+                    slideVertical.setTargetPosition(2669);
                     break;
                 case 2:
                     if (C_VERT_SLIDE_DWN && !PREV_C_VERT_SLIDE_DWN) {vSlideMotorState = 1;}
@@ -297,9 +297,12 @@ public class LASER_Teleop extends LinearOpMode {
 
             // INTAKE WRIST CONTROLS
             if (C_INTAKE) {
-                wristMotor.setPower(0.1);
-                wristMotor.setTargetPosition(220);
+                wristMotor.setPower(0.2);
+                wristMotor.setTargetPosition(200);
                 intakeServo.setPosition(1.0);
+            } else if (slideVertical.isBusy()) {
+                wristMotor.setPower(0.5);
+                wristMotor.setTargetPosition(30);
             } else {
                 wristMotor.setPower(0.5);
                 wristMotor.setTargetPosition(0);
@@ -342,10 +345,6 @@ public class LASER_Teleop extends LinearOpMode {
             telemetry.addData("Wrist Position", "%4.2f", (double)wristMotor.getCurrentPosition()); //??
             telemetry.addData("Wrist Power", "%4.2f", wristMotor.getPower()); //??
             telemetry.addData("Slide Level", vSlideMotorState);
-            telemetry.addData("  slideup", C_VERT_SLIDE_UP);
-            telemetry.addData("  prevslideup", PREV_C_VERT_SLIDE_UP);
-            telemetry.addData("  slidedown", C_VERT_SLIDE_DWN);
-            telemetry.addData("  prevslidedown", PREV_C_VERT_SLIDE_DWN);
             telemetry.addData("vSlidePos", slideVertical.getCurrentPosition());
 
             telemetry.update();
