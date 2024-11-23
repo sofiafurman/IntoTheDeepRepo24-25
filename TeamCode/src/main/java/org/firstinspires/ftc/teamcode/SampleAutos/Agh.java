@@ -92,6 +92,36 @@ public class Agh extends LinearOpMode{
             return new HighLift();
         }
 
+
+
+        public class LiftDown implements Action{
+            //checks if lift motor has been powered on
+            private boolean initialized = false;
+            //actions formatted via telemetry packets as below
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                //powers on motor if not on
+                if (!initialized){
+                    lift.setPower(0.1);
+                    initialized = true;
+                }
+                //checks lift's current position
+                double pos = lift.getCurrentPosition();
+                packet.put("liftPos", pos);
+                if (pos > 0) {
+                    //true causes the action to return
+                    return true;
+                } else {
+                    //false stops action rerun
+                    lift.setPower(0);
+                    return false;
+                }
+            }
+        }
+
+        public Action liftDown(){
+            return new LiftDown();
+        }
     }
 
     public class slideHorizontal{
