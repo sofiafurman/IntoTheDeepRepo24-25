@@ -100,14 +100,22 @@ public class LASER_Teleop extends LinearOpMode {
         leftBackDrive   = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
-        slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
 
         intakeServo  = hardwareMap.get(Servo.class, "intake_servo");
         outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
-        final double OUT_SERVO_DOWN_POS = 0.65;
+        final double OUT_SERVO_DOWN_POS = 0.7;
         final double OUT_SERVO_UP_POS   = 0.12;
         final double SERVO_SPEED        = -1;
         double outtakeServoPosition     = outtakeServo.getPosition();
+
+        slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
+        slideHorizontal.setDirection(DcMotor.Direction.REVERSE);
+        slideHorizontal.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        /* slideHorizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideHorizontal.setTargetPosition(0);
+        slideHorizontal.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slideHorizontal.setPower(1.0);
+        int hSlidePos = 0; */
 
         slideVertical = hardwareMap.get(DcMotor.class, "vertical_slide");
         slideVertical.setDirection(DcMotor.Direction.FORWARD);
@@ -120,6 +128,7 @@ public class LASER_Teleop extends LinearOpMode {
 
         wristMotor = hardwareMap.get(DcMotor.class, "wrist_drive");
         wristMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        wristMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         wristMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         wristMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         wristMotor.setTargetPosition(0);
@@ -141,7 +150,6 @@ public class LASER_Teleop extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
-        slideHorizontal.setDirection(DcMotor.Direction.REVERSE);
 
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -265,6 +273,17 @@ public class LASER_Teleop extends LinearOpMode {
             }
 
             // HORIZONTAL SLIDE CONTROLS
+            /*
+            if (hSlidePos < 0) {
+                hSlidePos = 0;
+                slideHorizontal.setTargetPosition(hSlidePos);
+            } else if (hSlidePos > 1000) {
+                hSlidePos = 1000;
+                slideHorizontal.setTargetPosition(hSlidePos);
+            } else {
+                hSlidePos += (int)(C_HORIZ_SLIDE * 100);
+                slideHorizontal.setTargetPosition(hSlidePos);
+            } */
             slideHorizontal.setPower(C_HORIZ_SLIDE);
 
             // OUTTAKE SERVO CONTROLS
@@ -274,11 +293,6 @@ public class LASER_Teleop extends LinearOpMode {
                     outtakeServoPosition = OUT_SERVO_UP_POS;
                 }
             } else {
-                /*
-                if ((Math.abs(C_VERT_SLIDE) > 0.1) && !C_OUT_SERVO) {
-                    outtakeServoPosition = OUT_SERVO_DOWN_POS + 0.3;
-                }
-                */
                 outtakeServoPosition -= SERVO_SPEED;
                 if (outtakeServoPosition >= OUT_SERVO_DOWN_POS) {
                     outtakeServoPosition = OUT_SERVO_DOWN_POS;
@@ -297,15 +311,15 @@ public class LASER_Teleop extends LinearOpMode {
 
             // INTAKE WRIST CONTROLS
             if (C_INTAKE) {
-                wristMotor.setPower(0.2);
-                wristMotor.setTargetPosition(200);
+                wristMotor.setPower(0.5);
+                wristMotor.setTargetPosition(710);
                 intakeServo.setPosition(1.0);
-            } else if (slideVertical.isBusy()) {
-                wristMotor.setPower(0.5);
-                wristMotor.setTargetPosition(30);
+            } else if (slideVertical.isBusy() && slideVertical.getCurrentPosition() < 1500) {
+                wristMotor.setPower(0.2);
+                wristMotor.setTargetPosition(130);
             } else {
-                wristMotor.setPower(0.5);
-                wristMotor.setTargetPosition(0);
+                wristMotor.setPower(0.7);
+                wristMotor.setTargetPosition(25);
                 if (!C_IN_SERVO_TRANSF && !C_IN_SERVO_SPIT) {
                     intakeServo.setPosition(0.5);
                 }
@@ -346,6 +360,9 @@ public class LASER_Teleop extends LinearOpMode {
             telemetry.addData("Wrist Power", "%4.2f", wristMotor.getPower()); //??
             telemetry.addData("Slide Level", vSlideMotorState);
             telemetry.addData("vSlidePos", slideVertical.getCurrentPosition());
+            telemetry.addData("hSlidePower", slideHorizontal.getPowerFloat());
+            //telemetry.addData("hSlidePos", hSlidePos);
+            //telemetry.addData("hSlidePos", slideHorizontal.getCurrentPosition());
 
             telemetry.update();
 
