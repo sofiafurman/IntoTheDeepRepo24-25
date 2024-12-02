@@ -92,7 +92,8 @@ public class LASER_Teleop extends LinearOpMode {
 
         double C_LATERAL, C_AXIAL, C_YAW, C_HORIZ_SLIDE;
         boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO, C_IN_SERVO_TRANSF, C_INTAKE, C_IN_SERVO_SPIT,
-                PREV_C_INTAKE, C_VERT_SLIDE_UP = false, PREV_C_VERT_SLIDE_UP = false, C_VERT_SLIDE_DWN = false, PREV_C_VERT_SLIDE_DWN = false;
+                PREV_C_INTAKE, C_VERT_SLIDE_UP = false, PREV_C_VERT_SLIDE_UP = false,
+                C_VERT_SLIDE_DWN = false, PREV_C_VERT_SLIDE_DWN = false;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -254,6 +255,12 @@ public class LASER_Teleop extends LinearOpMode {
                 keyB = false;
             }
 
+            // Send calculated power to wheels
+            leftFrontDrive.setPower(leftFrontPower * speed * invDir);
+            rightFrontDrive.setPower(rightFrontPower * speed * invDir);
+            leftBackDrive.setPower(leftBackPower * speed * invDir);
+            rightBackDrive.setPower(rightBackPower * speed * invDir);
+
             // VERTICAL SLIDE CONTROLS
             // 157 = 1 INCH
             switch (vSlideMotorState) {
@@ -341,12 +348,6 @@ public class LASER_Teleop extends LinearOpMode {
                 }
             }
             */
-
-            // Send calculated power to wheels
-            leftFrontDrive.setPower(leftFrontPower * speed * invDir);
-            rightFrontDrive.setPower(rightFrontPower * speed * invDir);
-            leftBackDrive.setPower(leftBackPower * speed * invDir);
-            rightBackDrive.setPower(rightBackPower * speed * invDir);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time:" + runtime.toString());
