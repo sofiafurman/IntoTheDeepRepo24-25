@@ -104,7 +104,7 @@ public class LASER_Teleop extends LinearOpMode {
 
         intakeServo  = hardwareMap.get(Servo.class, "intake_servo");
         outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
-        final double OUT_SERVO_DOWN_POS = 0.7;
+        final double OUT_SERVO_DOWN_POS = 0.71;
         final double OUT_SERVO_UP_POS   = 0.12;
         final double SERVO_SPEED        = -1;
         double outtakeServoPosition     = outtakeServo.getPosition();
@@ -266,7 +266,7 @@ public class LASER_Teleop extends LinearOpMode {
             switch (vSlideMotorState) {
                 case 0:
                     if (C_VERT_SLIDE_UP && !PREV_C_VERT_SLIDE_UP) {vSlideMotorState = 1;}
-                    slideVertical.setTargetPosition(0);
+                    slideVertical.setTargetPosition(78);
                     break;
                 case 1:
                     if (C_VERT_SLIDE_UP && !PREV_C_VERT_SLIDE_UP) {vSlideMotorState = 2;}
@@ -321,7 +321,7 @@ public class LASER_Teleop extends LinearOpMode {
                 wristMotor.setPower(0.5);
                 wristMotor.setTargetPosition(710);
                 intakeServo.setPosition(1.0);
-            } else if (slideVertical.isBusy() && slideVertical.getCurrentPosition() < 1500) {
+            } else if (slideVertical.isBusy() && slideVertical.getCurrentPosition() < 1500 && slideVertical.getCurrentPosition() > 150) {
                 wristMotor.setPower(0.2);
                 wristMotor.setTargetPosition(130);
             } else {
