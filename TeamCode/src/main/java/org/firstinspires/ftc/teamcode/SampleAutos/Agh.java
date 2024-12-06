@@ -1,19 +1,29 @@
 package org.firstinspires.ftc.teamcode.SampleAutos;
-
 import androidx.annotation.NonNull;
-
-// RR-specific imports
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-
-// Non-RR imports
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+
+
+
 
 @Config
 @Autonomous(name = "slay bbg", group = "Autonomous")
@@ -25,6 +35,7 @@ public class Agh extends LinearOpMode{
     //mechanism instantiation
 
     public class slideVertical {
+
         private DcMotorEx lift;
 
         public slideVertical(HardwareMap hardwareMap) {
@@ -41,7 +52,7 @@ public class Agh extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet){
                 //powers on motor if not on
                 if (!initialized){
-                    lift.setPower(0.1);
+                    lift.setPower(1);
                     initialized = true;
                 }
                 //checks lift's current position
@@ -49,6 +60,8 @@ public class Agh extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos < 2512) {
                     //true causes the action to return
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    lift.setTargetPosition(2512);
                     return true;
                 } else {
                     //false stops action rerun
@@ -71,7 +84,7 @@ public class Agh extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet){
                 //powers on motor if not on
                 if (!initialized){
-                    lift.setPower(0.1);
+                    lift.setPower(1);
                     initialized = true;
                 }
                 //checks lift's current position
@@ -79,6 +92,8 @@ public class Agh extends LinearOpMode{
                 packet.put("liftPosHigh?", pos);
                 if (pos < 5024) {
                     //true causes the action to return
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    lift.setTargetPosition(2512);
                     return true;
                 } else {
                     //false stops action rerun
@@ -102,7 +117,7 @@ public class Agh extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet){
                 //powers on motor if not on
                 if (!initialized){
-                    lift.setPower(0.1);
+                    lift.setPower(1);
                     initialized = true;
                 }
                 //checks lift's current position
@@ -110,13 +125,16 @@ public class Agh extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos > 0) {
                     //true causes the action to return
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    lift.setTargetPosition(0);
                     return true;
                 } else {
                     //false stops action rerun
-                    lift.setPower(0);
+
                     return false;
                 }
             }
+
         }
 
         public Action liftDown(){
@@ -158,7 +176,40 @@ public class Agh extends LinearOpMode{
     //begin code
     @Override
     public void runOpMode() throws InterruptedException {
+        Pose2d initialPose = new Pose2d(0, 0, Math.toRadians(0));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
+        slideVertical lift = new slideVertical(hardwareMap);
 
+        TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
+
+
+                .splineToSplineHeading(new Pose2d(44, 10, Math.toRadians(0)), Math.toRadians(45));
+               // .splineToSplineHeading(new Pose2d(0, 20, Math.toRadians(0)), Math.toRadians(0));
+
+
+
+        // actions that need to happen on init; for instance, a claw tightening.
+
+
+        waitForStart();
+
+        if (isStopRequested()) return;
+
+        Action trajectoryActionChosen;
+        trajectoryActionChosen = tab1.build();
+
+        Actions.runBlocking(
+                new ParallelAction(
+                        trajectoryActionChosen,
+                        new SequentialAction(
+                                lift.highLift(),
+                                lift.liftDown()
+                        )
+                        //lift.liftDown()
+                        //trajectoryActionCloseOut
+                )
+                //;new ParallelAction()
+        );
     }
 }
 
