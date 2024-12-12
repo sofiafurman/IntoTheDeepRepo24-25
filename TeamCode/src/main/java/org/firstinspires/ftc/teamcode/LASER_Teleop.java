@@ -53,8 +53,9 @@ public class LASER_Teleop extends LinearOpMode {
         slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
         slideHorizontal.setDirection(DcMotor.Direction.REVERSE);
         slideHorizontal.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        /* slideHorizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideHorizontal.setTargetPosition(0);
+        slideHorizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideHorizontal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        /*slideHorizontal.setTargetPosition(0);
         slideHorizontal.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideHorizontal.setPower(1.0);
         int hSlidePos = 0; */
@@ -237,7 +238,13 @@ public class LASER_Teleop extends LinearOpMode {
                 hSlidePos += (int)(C_HORIZ_SLIDE * 100);
                 slideHorizontal.setTargetPosition(hSlidePos);
             } */
-            slideHorizontal.setPower(C_HORIZ_SLIDE);
+            if (C_HORIZ_SLIDE > 0 && slideHorizontal.getCurrentPosition() < 0) {
+                slideHorizontal.setPower(C_HORIZ_SLIDE);
+            } else if (C_HORIZ_SLIDE < 0 && slideHorizontal.getCurrentPosition() > -1700) {
+                slideHorizontal.setPower(C_HORIZ_SLIDE);
+            } else {
+                slideHorizontal.setPower(0);
+            }
 
             // OUTTAKE SERVO CONTROLS
             if (C_OUT_SERVO) {
@@ -307,7 +314,7 @@ public class LASER_Teleop extends LinearOpMode {
             telemetry.addData("Wrist Power", "%4.2f", wristMotor.getPower()); //??
             telemetry.addData("Slide Level", vSlideMotorState);
             telemetry.addData("vSlidePos", slideVertical.getCurrentPosition());
-            telemetry.addData("hSlidePower", slideHorizontal.getPowerFloat());
+            telemetry.addData("hSlidePower", C_HORIZ_SLIDE);
             //telemetry.addData("hSlidePos", hSlidePos);
             telemetry.addData("hSlidePos", slideHorizontal.getCurrentPosition());
 
