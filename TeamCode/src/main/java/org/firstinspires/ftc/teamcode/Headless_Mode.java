@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 import com.acmerobotics.roadrunner.ftc.Encoder;
 
-import java.util.Base64;
-
 @TeleOp(name="Headless Test", group="Linear OpMode")
 public class Headless_Mode extends LinearOpMode {
 
@@ -20,8 +18,8 @@ public class Headless_Mode extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive  = null;
 
-    private Encoder odo1;
-    private Encoder odo2;
+    //private Encoder odo1;
+    //private Encoder odo2;
 
     public static double[] rotatePoint(double x, double y, double rotateAngle) {
         double rotateAngleRadians = -rotateAngle / 57.29578;
@@ -37,18 +35,17 @@ public class Headless_Mode extends LinearOpMode {
 
         double[] ray;
 
-        double trackWidthTicks = 7093.064250763197;
-        double wheelDistance = 0.0;
-        double prevOdo1Pos, prevOdo2Pos, odo1Diff, odo2Diff;
+        double trackWidthTicks = 15591/360;
+        double prevOdo1Pos = 0, prevOdo2Pos = 0, odo1Diff, odo2Diff;
 
         double axial, lateral;
         double max;
-        double robotHeading = 90;
+        double robotHeading = 0;
         double C_LATERAL, C_AXIAL, C_YAW;
         boolean C_RESET;
 
-        odo1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "left_front_drive")));
-        odo2 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "right_back_drive")));
+        //odo1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "left_front_drive")));
+        //odo2 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "right_back_drive")));
 
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
         leftBackDrive   = hardwareMap.get(DcMotor.class, "left_back_drive");
@@ -65,6 +62,11 @@ public class Headless_Mode extends LinearOpMode {
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         waitForStart();
 
         while (opModeIsActive()) {
@@ -74,14 +76,19 @@ public class Headless_Mode extends LinearOpMode {
             C_YAW     = gamepad1.right_stick_x;
             C_RESET   = gamepad1.a;
 
-            prevOdo1Pos = odo1.getPositionAndVelocity().position;
-            prevOdo2Pos = odo2.getPositionAndVelocity().position;
-            odo1Diff = odo1.getPositionAndVelocity().position - prevOdo1Pos;
-            odo2Diff = odo2.getPositionAndVelocity().position - prevOdo2Pos;
+            odo1Diff = ((rightFrontDrive.getCurrentPosition()*16000)/29643.0) - prevOdo1Pos;//odo1.getPositionAndVelocity().position - prevOdo1Pos;
+            odo2Diff = leftFrontDrive.getCurrentPosition() - prevOdo2Pos;//odo2.getPositionAndVelocity().position - prevOdo2Pos;
+            prevOdo1Pos = ((rightFrontDrive.getCurrentPosition()*16000)/29643.0);//odo1.getPositionAndVelocity().position;
+            prevOdo2Pos = leftFrontDrive.getCurrentPosition();//odo2.getPositionAndVelocity().position;
             double headingChange = (odo1Diff - odo2Diff) / trackWidthTicks;
 
             if (C_RESET) {
                 robotHeading = 0;
+            }
+            if (robotHeading > 180) {
+                robotHeading = -180 - (robotHeading-180);
+            } else if (robotHeading < -180) {
+                robotHeading = 180 + (robotHeading+180);
             }
             robotHeading += headingChange;
 
@@ -104,6 +111,13 @@ public class Headless_Mode extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower);
             rightBackDrive.setPower(rightBackPower);
 
+            telemetry.addData("robotHeading", robotHeading);
+            telemetry.addData("headingChange", headingChange);
+            telemetry.addData("odo1Pos (rightfront)", ((rightFrontDrive.getCurrentPosition()*16000)/29643.0));
+            telemetry.addData("odo2Pos (leftfront)", leftFrontDrive.getCurrentPosition());
+            telemetry.addData("odo1Diff", odo1Diff);
+            telemetry.addData("odo2Diff", odo2Diff);
+            telemetry.update();
         }
     }
 }
