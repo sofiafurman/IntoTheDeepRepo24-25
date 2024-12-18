@@ -1,68 +1,9 @@
-/* Copyright (c) 2021 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-//This is just a test
-
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-/*
- * This file contains an example of a Linear "OpMode".
- * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
- * The names of OpModes appear on the menu of the FTC Driver Station.
- * When a selection is made from the menu, the corresponding OpMode is executed.
- *
- * This particular OpMode illustrates driving a 4-motor Omni-Directional (or Holonomic) robot.
- * This code will work with either a Mecanum-Drive or an X-Drive train.
- * Both of these drives are illustrated at https://gm0.org/en/latest/docs/robot-design/drivetrains/holonomic.html
- * Note that a Mecanum drive must display an X roller-pattern when viewed from above.
- *
- * Also note that it is critical to set the correct rotation direction for each motor.  See details below.
- *
- * Holonomic drives provide the ability for the robot to move in three axes (directions) simultaneously.
- * Each motion axis is controlled by one Joystick axis.
- *
- * 1) Axial:    Driving forward and backward               Left-joystick Forward/Backward
- * 2) Lateral:  Strafing right and left                     Left-joystick Right and Left
- * 3) Yaw:      Rotating Clockwise and counter clockwise    Right-joystick Right and Left
- *
- * This code is written assuming that the right-side motors need to be reversed for the robot to drive forward.
- * When you first test your robot, if it moves backward when you push the left stick forward, then you must flip
- * the direction of all 4 motors (see code below).
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
- */
 
 @TeleOp(name="LASER Main Teleop", group="Linear OpMode")
 //@Disabled
@@ -104,16 +45,17 @@ public class LASER_Teleop extends LinearOpMode {
 
         intakeServo  = hardwareMap.get(Servo.class, "intake_servo");
         outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
-        final double OUT_SERVO_DOWN_POS = 0.71;
-        final double OUT_SERVO_UP_POS   = 0.12;
-        final double SERVO_SPEED        = -1;
+        final double OUT_SERVO_DOWN_POS = 0.7;
+        final double OUT_SERVO_UP_POS   = 0.06;
+        final double SERVO_SPEED        = -10;
         double outtakeServoPosition     = outtakeServo.getPosition();
 
         slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
         slideHorizontal.setDirection(DcMotor.Direction.REVERSE);
         slideHorizontal.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        /* slideHorizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideHorizontal.setTargetPosition(0);
+        slideHorizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideHorizontal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        /*slideHorizontal.setTargetPosition(0);
         slideHorizontal.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideHorizontal.setPower(1.0);
         int hSlidePos = 0; */
@@ -168,6 +110,11 @@ public class LASER_Teleop extends LinearOpMode {
         while (opModeIsActive()) {
 
             // KEYBINDS
+            /*
+            * 1) Axial:    Driving forward and backward               Left-joystick Forward/Backward
+            * 2) Lateral:  Strafing right and left                     Left-joystick Right and Left
+            * 3) Yaw:      Rotating Clockwise and counter clockwise    Right-joystick Right and Left
+            */
             C_AXIAL               = gamepad1.left_stick_y;
             C_LATERAL             = gamepad1.left_stick_x;
             C_YAW                 = gamepad1.right_stick_x;
@@ -291,7 +238,13 @@ public class LASER_Teleop extends LinearOpMode {
                 hSlidePos += (int)(C_HORIZ_SLIDE * 100);
                 slideHorizontal.setTargetPosition(hSlidePos);
             } */
-            slideHorizontal.setPower(C_HORIZ_SLIDE);
+            if (C_HORIZ_SLIDE > 0 && slideHorizontal.getCurrentPosition() < 0) {
+                slideHorizontal.setPower(C_HORIZ_SLIDE);
+            } else if (C_HORIZ_SLIDE < 0 && slideHorizontal.getCurrentPosition() > -1700) {
+                slideHorizontal.setPower(C_HORIZ_SLIDE);
+            } else {
+                slideHorizontal.setPower(0);
+            }
 
             // OUTTAKE SERVO CONTROLS
             if (C_OUT_SERVO) {
@@ -319,14 +272,14 @@ public class LASER_Teleop extends LinearOpMode {
             // INTAKE WRIST CONTROLS
             if (C_INTAKE) {
                 wristMotor.setPower(0.5);
-                wristMotor.setTargetPosition(710);
+                wristMotor.setTargetPosition(683);
                 intakeServo.setPosition(1.0);
             } else if (slideVertical.isBusy() && slideVertical.getCurrentPosition() < 1500 && slideVertical.getCurrentPosition() > 150) {
                 wristMotor.setPower(0.2);
                 wristMotor.setTargetPosition(130);
             } else {
                 wristMotor.setPower(0.7);
-                wristMotor.setTargetPosition(25);
+                wristMotor.setTargetPosition(15);
                 if (!C_IN_SERVO_TRANSF && !C_IN_SERVO_SPIT) {
                     intakeServo.setPosition(0.5);
                 }
@@ -361,15 +314,21 @@ public class LASER_Teleop extends LinearOpMode {
             telemetry.addData("Wrist Power", "%4.2f", wristMotor.getPower()); //??
             telemetry.addData("Slide Level", vSlideMotorState);
             telemetry.addData("vSlidePos", slideVertical.getCurrentPosition());
-            telemetry.addData("hSlidePower", slideHorizontal.getPowerFloat());
+            telemetry.addData("hSlidePower", C_HORIZ_SLIDE);
             //telemetry.addData("hSlidePos", hSlidePos);
-            //telemetry.addData("hSlidePos", slideHorizontal.getCurrentPosition());
+            telemetry.addData("hSlidePos", slideHorizontal.getCurrentPosition());
 
             telemetry.update();
 
             PREV_C_INTAKE = C_INTAKE;
 
             sleep(CYCLE_MS);
+
+            if (!opModeIsActive()) {
+                slideVertical.setTargetPosition(0);
+                wristMotor.setPower(0.2);
+                wristMotor.setTargetPosition(0);
+            }
         }
     }
 }
