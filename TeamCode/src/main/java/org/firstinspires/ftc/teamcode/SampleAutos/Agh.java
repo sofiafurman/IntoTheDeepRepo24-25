@@ -5,9 +5,12 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -176,16 +179,31 @@ public class Agh extends LinearOpMode{
     //begin code
     @Override
     public void runOpMode() throws InterruptedException {
+        //Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(270));
         Pose2d initialPose = new Pose2d(0, 0, Math.toRadians(0));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
-        TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
+        /*TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
+                .lineToYConstantHeading(-1); //-45
+
+        TrajectoryActionBuilder tab2 = drive.actionBuilder(initialPose)
+                .lineToYConstantHeading(-44);*/
+
+        /*TrajectoryActionBuilder test = drive.actionBuilder(initialPose)
+                .splineTo(new Vector2d(0.0, 48.0), 0.0)
+                .splineTo(new Vector2d(48.0, 0.0), -Math.PI / 2,
+                        // only override velocity constraint
+                        new TranslationalVelConstraint(20.0))
+                .splineTo(new Vector2d(0.0, -48.0), -Math.PI,
+                        // skip velocity constraint and only override acceleration constraint
+                        null,
+                        new ProfileAccelConstraint(-10.0, 10.0))
+                // revert back to the base constraints
+                .splineTo(new Vector2d(-48.0, 0.0), Math.PI / 2);*/
 
 
-                .splineToSplineHeading(new Pose2d(44, 10, Math.toRadians(0)), Math.toRadians(45));
-               // .splineToSplineHeading(new Pose2d(0, 20, Math.toRadians(0)), Math.toRadians(0));
-
+        // .splineToSplineHeading(new Pose2d(0, 20, Math.toRadians(0)), Math.toRadians(0));
 
 
         // actions that need to happen on init; for instance, a claw tightening.
@@ -195,11 +213,11 @@ public class Agh extends LinearOpMode{
 
         if (isStopRequested()) return;
 
-        Action trajectoryActionChosen;
-        trajectoryActionChosen = tab1.build();
+        /*Action trajectoryActionChosen;
+        trajectoryActionChosen = tab1.build();*/
 
-        Actions.runBlocking(
-                new ParallelAction(
+        //Actions.runBlocking(
+               /* new ParallelAction(
                         trajectoryActionChosen,
                         new SequentialAction(
                                 lift.highLift(),
@@ -207,9 +225,37 @@ public class Agh extends LinearOpMode{
                         )
                         //lift.liftDown()
                         //trajectoryActionCloseOut
+                )/*
+                new SequentialAction(
+                        /*tab1.build(),
+                        lift.lowLift(),
+                        tab2.build(),
+                        lift.liftDown()
+                    .lineToY(45),
+                    new TranslationalVelConstraint(10),
+                    new ProfileAccelConstraint(-10,10))*/
+                /*new SequentialAction(
+                    tab1.build(),
+                    test.build()
                 )
-                //;new ParallelAction()
-        );
-    }
-}
 
+        );*/
+
+        Actions.runBlocking(
+                drive.actionBuilder(initialPose)
+                        /*.lineToYConstantHeading(60,
+                                //new TranslationalVelConstraint(10.0),
+                                null,
+                                new ProfileAccelConstraint(1,10))
+                        .lineToYConstantHeading(-60,
+                                new TranslationalVelConstraint(20.0),
+                                new ProfileAccelConstraint(10,20))*/
+                        .setTangent(Math.PI/2)
+                        .lineToY( 60, null,
+                                new ProfileAccelConstraint(-5.0, 5.0))
+
+                        .splineTo(new Vector2d(0.0, -60.0), 0, null,
+                                new ProfileAccelConstraint(-10.0, 10.0))
+                        .build());
+
+    }}
