@@ -5,9 +5,12 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -32,7 +35,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
 public class Agh extends LinearOpMode{
 
+    double quarter = 92.5; //"90 degree" turn
+    double tile = 20; //"24 inches;" one tile
+
     //mechanism instantiation
+
+
 
     public class slideVertical {
 
@@ -176,16 +184,33 @@ public class Agh extends LinearOpMode{
     //begin code
     @Override
     public void runOpMode() throws InterruptedException {
-        Pose2d initialPose = new Pose2d(0, 0, Math.toRadians(0));
+        //Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(270));
+        Pose2d initialPose = new Pose2d(48, -72, Math.toRadians(quarter));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
-        TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
+        TrajectoryActionBuilder toSub = drive.actionBuilder(initialPose)
+                .strafeToLinearHeading(new Vector2d(0, 24), Math.toRadians(3 * quarter));
+        /*TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
+                .lineToYConstantHeading(-1); //-45
+
+        TrajectoryActionBuilder tab2 = drive.actionBuilder(initialPose)
+                .lineToYConstantHeading(-44);*/
+
+        /*TrajectoryActionBuilder test = drive.actionBuilder(initialPose)
+                .splineTo(new Vector2d(0.0, 48.0), 0.0)
+                .splineTo(new Vector2d(48.0, 0.0), -Math.PI / 2,
+                        // only override velocity constraint
+                        new TranslationalVelConstraint(20.0))
+                .splineTo(new Vector2d(0.0, -48.0), -Math.PI,
+                        // skip velocity constraint and only override acceleration constraint
+                        null,
+                        new ProfileAccelConstraint(-10.0, 10.0))
+                // revert back to the base constraints
+                .splineTo(new Vector2d(-48.0, 0.0), Math.PI / 2);*/
 
 
-                .splineToSplineHeading(new Pose2d(44, 10, Math.toRadians(0)), Math.toRadians(45));
-               // .splineToSplineHeading(new Pose2d(0, 20, Math.toRadians(0)), Math.toRadians(0));
-
+        // .splineToSplineHeading(new Pose2d(0, 20, Math.toRadians(0)), Math.toRadians(0));
 
 
         // actions that need to happen on init; for instance, a claw tightening.
@@ -195,11 +220,11 @@ public class Agh extends LinearOpMode{
 
         if (isStopRequested()) return;
 
-        Action trajectoryActionChosen;
-        trajectoryActionChosen = tab1.build();
+        /*Action trajectoryActionChosen;
+        trajectoryActionChosen = tab1.build();*/
 
-        Actions.runBlocking(
-                new ParallelAction(
+        //Actions.runBlocking(
+               /* new ParallelAction(
                         trajectoryActionChosen,
                         new SequentialAction(
                                 lift.highLift(),
@@ -207,9 +232,34 @@ public class Agh extends LinearOpMode{
                         )
                         //lift.liftDown()
                         //trajectoryActionCloseOut
+                )/*
+                new SequentialAction(
+                        /*tab1.build(),
+                        lift.lowLift(),
+                        tab2.build(),
+                        lift.liftDown()
+                    .lineToY(45),
+                    new TranslationalVelConstraint(10),
+                    new ProfileAccelConstraint(-10,10))*/
+                /*new SequentialAction(
+                    tab1.build(),
+                    test.build()
                 )
-                //;new ParallelAction()
-        );
-    }
-}
 
+        );*/
+
+        /*
+        //THIS IS THE AUTO DRAFT!!!!!!!!!Actions.runBlocking(
+
+                new SequentialAction(
+                        new ParallelAction(
+                                toSub.build(),
+                                lift.lowLift()
+                        ),
+                        lift.liftDown(),
+
+                )
+                //.strafeToLinearHeading(new Vector2d(0, -24), 0)
+                .build());*/
+
+    }}
