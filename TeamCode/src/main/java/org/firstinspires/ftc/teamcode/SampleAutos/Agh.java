@@ -35,7 +35,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
 public class Agh extends LinearOpMode{
 
+    double quarter = 92.5; //"90 degree" turn
+    double tile = 20; //"24 inches;" one tile
+
     //mechanism instantiation
+
+
 
     public class slideVertical {
 
@@ -180,10 +185,12 @@ public class Agh extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         //Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(270));
-        Pose2d initialPose = new Pose2d(0, 0, Math.toRadians(0));
+        Pose2d initialPose = new Pose2d(48, -72, Math.toRadians(quarter));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
+        TrajectoryActionBuilder toSub = drive.actionBuilder(initialPose)
+                .strafeToLinearHeading(new Vector2d(0, 24), Math.toRadians(3 * quarter));
         /*TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
                 .lineToYConstantHeading(-1); //-45
 
@@ -241,21 +248,18 @@ public class Agh extends LinearOpMode{
 
         );*/
 
-        Actions.runBlocking(
-                drive.actionBuilder(initialPose)
-                        /*.lineToYConstantHeading(60,
-                                //new TranslationalVelConstraint(10.0),
-                                null,
-                                new ProfileAccelConstraint(1,10))
-                        .lineToYConstantHeading(-60,
-                                new TranslationalVelConstraint(20.0),
-                                new ProfileAccelConstraint(10,20))*/
-                        .setTangent(Math.PI/2)
-                        .lineToY( 60, null,
-                                new ProfileAccelConstraint(-5.0, 5.0))
+        /*
+        //THIS IS THE AUTO DRAFT!!!!!!!!!Actions.runBlocking(
 
-                        .splineTo(new Vector2d(0.0, -60.0), 0, null,
-                                new ProfileAccelConstraint(-10.0, 10.0))
-                        .build());
+                new SequentialAction(
+                        new ParallelAction(
+                                toSub.build(),
+                                lift.lowLift()
+                        ),
+                        lift.liftDown(),
+
+                )
+                //.strafeToLinearHeading(new Vector2d(0, -24), 0)
+                .build());*/
 
     }}
