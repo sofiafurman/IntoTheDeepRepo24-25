@@ -32,7 +32,7 @@ public class LASER_Teleop extends LinearOpMode {
         boolean keyA = false, keyB = false;    // used for toggle keys
 
         double C_LATERAL, C_AXIAL, C_YAW, C_HORIZ_SLIDE;
-        boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO, C_IN_SERVO_TRANSF, C_INTAKE, C_IN_SERVO_SPIT,
+        boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO, C_IN_SERVO_TRANSF, C_INTAKE, C_SPIT,
                 PREV_C_INTAKE, C_VERT_SLIDE_UP = false, PREV_C_VERT_SLIDE_UP = false,
                 C_VERT_SLIDE_DWN = false, PREV_C_VERT_SLIDE_DWN = false;
 
@@ -127,7 +127,7 @@ public class LASER_Teleop extends LinearOpMode {
             C_HORIZ_SLIDE         = gamepad2.left_stick_y;
             C_OUT_SERVO           = gamepad2.b;
             C_IN_SERVO_TRANSF     = gamepad2.y;
-            C_IN_SERVO_SPIT       = gamepad2.x;
+            C_SPIT                = gamepad2.x;
             C_INTAKE              = gamepad2.a;
 
             double max;
@@ -263,24 +263,26 @@ public class LASER_Teleop extends LinearOpMode {
             // INTAKE SERVO / TRANSFER CONTROLS
             if (C_IN_SERVO_TRANSF && !C_INTAKE) {
                 intakeServo.setPosition(1.0);
-            } else if (C_IN_SERVO_SPIT) {
+            } else if (C_SPIT) {
                 intakeServo.setPosition(0.0);
             } else {
                 intakeServo.setPosition(0.5);
             }
 
             // INTAKE WRIST CONTROLS
-            if (C_INTAKE) {
+            if (C_INTAKE || C_SPIT) {
                 wristMotor.setPower(0.5);
                 wristMotor.setTargetPosition(683);
-                intakeServo.setPosition(1.0);
+                if (C_INTAKE) {
+                    intakeServo.setPosition(1.0);
+                }
             } else if (slideVertical.isBusy() && slideVertical.getCurrentPosition() < 1500 && slideVertical.getCurrentPosition() > 150) {
                 wristMotor.setPower(0.2);
                 wristMotor.setTargetPosition(130);
             } else {
                 wristMotor.setPower(0.7);
                 wristMotor.setTargetPosition(15);
-                if (!C_IN_SERVO_TRANSF && !C_IN_SERVO_SPIT) {
+                if (!C_IN_SERVO_TRANSF && !C_SPIT) {
                     intakeServo.setPosition(0.5);
                 }
             }
