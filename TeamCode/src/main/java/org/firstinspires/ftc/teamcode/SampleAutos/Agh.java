@@ -92,16 +92,16 @@ public class Agh extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet){
                 //powers on motor if not on
                 if (!initialized){
-                    lift.setPower(1);
+                    lift.setPower(1); //og 1
                     initialized = true;
                 }
                 //checks lift's current position
                 double pos = lift.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos < 2520) {
+                if (pos < 2500) {
                     //true causes the action to return
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    lift.setTargetPosition(2520);
+                    lift.setTargetPosition(2500);
                     return true;
                 } else {
                     //false stops action rerun
@@ -186,12 +186,22 @@ public class Agh extends LinearOpMode{
     public void runOpMode() throws InterruptedException {
         //Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(270));
         Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(3 * quarter));
+        Pose2d sub = new Pose2d(0, -41, Math.toRadians(3 * quarter));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
         TrajectoryActionBuilder toSub = drive.actionBuilder(initialPose)
-                .strafeToConstantHeading(new Vector2d(0, -45)); //28 for 2, 1  for 14?
-                //.strafeToConstantHeading(new Vector2d(0, -72)); //28 for 2, 1  fpor 14?
+                .strafeToConstantHeading(new Vector2d(0, -41)); //28 for 2, 1  for 14?
+        TrajectoryActionBuilder toSamp1 = drive.actionBuilder(sub)
+                .strafeToConstantHeading(new Vector2d(30, -50))
+                .strafeToConstantHeading(new Vector2d(30, -12))
+                .strafeToConstantHeading(new Vector2d(38, -26)) //position in front of first
+                .strafeToConstantHeading(new Vector2d(38, -60)) //push first back
+                .strafeToConstantHeading(new Vector2d(38, -12))
+                .strafeToConstantHeading(new Vector2d(49, -26)) //position in front of second
+                .strafeToConstantHeading(new Vector2d(49, -60)); //push second back
+                //.splineToConstantHeading(new Vector2d(40,-41), Math.toRadians(100),new  ,new ProfileAccelConstraint(-5, 5));
+        //.strafeToConstantHeading(new Vector2d(0, -72)); //28 for 2, 1  fpor 14?
         Action trajectoryActionCloseOut = toSub.endTrajectory().fresh()
                 .strafeTo(new Vector2d(0, -72))
                 .build();
@@ -207,13 +217,18 @@ public class Agh extends LinearOpMode{
 
         Actions.runBlocking(
                 new SequentialAction(
-                        //lift.highLift(),
-                        //toSub.build(),
-                        toSub.build(),
-                        lift.lowLift(),
+                        new ParallelAction(
+                                //lift.highLift(),
+                                //toSub.build(),
+                                //toSub.build(),
+                                lift.highLift(),
+                                toSub.build()
+                                //fwd.build()
 
-                        lift.liftDown()
-                        //trajectoryActionCloseOut
+                                //trajectoryActionCloseOut
+                        ),
+                        lift.liftDown(),
+                        toSamp1.build()
                 )
                 //lift.highLift()
         );
