@@ -193,14 +193,17 @@ public class Agh extends LinearOpMode{
         TrajectoryActionBuilder toSub = drive.actionBuilder(initialPose)
                 .strafeToConstantHeading(new Vector2d(0, -41)); //28 for 2, 1  for 14?
         TrajectoryActionBuilder toSamp1 = drive.actionBuilder(sub)
-                .strafeToConstantHeading(new Vector2d(30, -50))
-                .strafeToConstantHeading(new Vector2d(30, -12))
-                .strafeToConstantHeading(new Vector2d(38, -26)) //position in front of first
-                .strafeToConstantHeading(new Vector2d(38, -60)) //push first back
-                .strafeToConstantHeading(new Vector2d(38, -12))
-                .strafeToConstantHeading(new Vector2d(49, -26)) //position in front of second
-                .strafeToConstantHeading(new Vector2d(49, -60)); //push second back
-                //.splineToConstantHeading(new Vector2d(40,-41), Math.toRadians(100),new  ,new ProfileAccelConstraint(-5, 5));
+                .strafeToConstantHeading(new Vector2d(30, -45))//, new TranslationalVelConstraint(10.0))
+                .strafeToConstantHeading(new Vector2d(30, -16))//, new TranslationalVelConstraint(10.0))
+                .strafeToConstantHeading(new Vector2d(39, -24), new TranslationalVelConstraint(10.0)) //position in front of first
+                .strafeToConstantHeading(new Vector2d(39, -55)) //push first back
+                .strafeToConstantHeading(new Vector2d(39, -16))
+                .strafeToConstantHeading(new Vector2d(48, -16), new TranslationalVelConstraint(10.0))
+                .strafeToConstantHeading(new Vector2d(49, -55)) //push second back
+                .strafeToLinearHeading(new Vector2d(36, -35), Math.toRadians(95)) //quarter not enough
+                .strafeToConstantHeading(new Vector2d(36, -72), new TranslationalVelConstraint(10.0));
+        /*.strafeToConstantHeading(new Vector2d(49, -60)); //push second back*/
+        //.splineToConstantHeading(new Vector2d(40,-41), Math.toRadians(100),new  ,new ProfileAccelConstraint(-5, 5));
         //.strafeToConstantHeading(new Vector2d(0, -72)); //28 for 2, 1  fpor 14?
         Action trajectoryActionCloseOut = toSub.endTrajectory().fresh()
                 .strafeTo(new Vector2d(0, -72))
