@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
@@ -213,15 +214,18 @@ public class LASER_Teleop extends LinearOpMode {
             switch (vSlideMotorState) {
                 case 0:
                     if (C_VERT_SLIDE_UP && !PREV_C_VERT_SLIDE_UP) {vSlideMotorState = 1;}
+                    slideVertical.setPower(1.0);
                     slideVertical.setTargetPosition(78);
                     break;
                 case 1:
                     if (C_VERT_SLIDE_UP && !PREV_C_VERT_SLIDE_UP) {vSlideMotorState = 2;}
                     else if (C_VERT_SLIDE_DWN && !PREV_C_VERT_SLIDE_DWN) {vSlideMotorState = 0;}
+                    slideVertical.setPower(1.0);
                     slideVertical.setTargetPosition(2669);
                     break;
                 case 2:
                     if (C_VERT_SLIDE_DWN && !PREV_C_VERT_SLIDE_DWN) {vSlideMotorState = 1;}
+                    slideVertical.setPower(0.7);
                     slideVertical.setTargetPosition(5024);
                     break;
             }
