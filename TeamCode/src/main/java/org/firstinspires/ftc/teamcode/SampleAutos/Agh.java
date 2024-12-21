@@ -92,16 +92,16 @@ public class Agh extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet){
                 //powers on motor if not on
                 if (!initialized){
-                    lift.setPower(1);
+                    lift.setPower(1); //og 1
                     initialized = true;
                 }
                 //checks lift's current position
                 double pos = lift.getCurrentPosition();
-                packet.put("liftPosHigh?", pos);
-                if (pos < 5024) {
+                packet.put("liftPos", pos);
+                if (pos < 2500) {
                     //true causes the action to return
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    lift.setTargetPosition(2512);
+                    lift.setTargetPosition(2500);
                     return true;
                 } else {
                     //false stops action rerun
@@ -185,32 +185,30 @@ public class Agh extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         //Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(270));
-        Pose2d initialPose = new Pose2d(48, -72, Math.toRadians(quarter));
+        Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(3 * quarter));
+        Pose2d sub = new Pose2d(0, -41, Math.toRadians(3 * quarter));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
         TrajectoryActionBuilder toSub = drive.actionBuilder(initialPose)
-                .strafeToLinearHeading(new Vector2d(0, 24), Math.toRadians(3 * quarter));
-        /*TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
-                .lineToYConstantHeading(-1); //-45
+                .strafeToConstantHeading(new Vector2d(0, -41)); //28 for 2, 1  for 14?
+        TrajectoryActionBuilder toSamp1 = drive.actionBuilder(sub)
+                .strafeToConstantHeading(new Vector2d(30, -45))//, new TranslationalVelConstraint(10.0))
+                .strafeToConstantHeading(new Vector2d(30, -16))//, new TranslationalVelConstraint(10.0))
+                .strafeToConstantHeading(new Vector2d(39, -24), new TranslationalVelConstraint(10.0)) //position in front of first
+                .strafeToConstantHeading(new Vector2d(39, -56)) //push first back
+                .strafeToConstantHeading(new Vector2d(39, -16))
+                .strafeToConstantHeading(new Vector2d(48, -16), new TranslationalVelConstraint(10.0))
+                .strafeToConstantHeading(new Vector2d(49, -56)) //push second back
+                .strafeToLinearHeading(new Vector2d(43, -35), Math.toRadians(100)) //quarter not enough
+                .strafeToConstantHeading(new Vector2d(43, -68), new TranslationalVelConstraint(5.0));
+        /*.strafeToConstantHeading(new Vector2d(49, -60)); //push second back*/
+        //.splineToConstantHeading(new Vector2d(40,-41), Math.toRadians(100),new  ,new ProfileAccelConstraint(-5, 5));
+        //.strafeToConstantHeading(new Vector2d(0, -72)); //28 for 2, 1  fpor 14?
+        Action trajectoryActionCloseOut = toSub.endTrajectory().fresh()
+                .strafeTo(new Vector2d(0, -72))
+                .build();
 
-        TrajectoryActionBuilder tab2 = drive.actionBuilder(initialPose)
-                .lineToYConstantHeading(-44);*/
-
-        /*TrajectoryActionBuilder test = drive.actionBuilder(initialPose)
-                .splineTo(new Vector2d(0.0, 48.0), 0.0)
-                .splineTo(new Vector2d(48.0, 0.0), -Math.PI / 2,
-                        // only override velocity constraint
-                        new TranslationalVelConstraint(20.0))
-                .splineTo(new Vector2d(0.0, -48.0), -Math.PI,
-                        // skip velocity constraint and only override acceleration constraint
-                        null,
-                        new ProfileAccelConstraint(-10.0, 10.0))
-                // revert back to the base constraints
-                .splineTo(new Vector2d(-48.0, 0.0), Math.PI / 2);*/
-
-
-        // .splineToSplineHeading(new Pose2d(0, 20, Math.toRadians(0)), Math.toRadians(0));
 
 
         // actions that need to happen on init; for instance, a claw tightening.
@@ -220,46 +218,23 @@ public class Agh extends LinearOpMode{
 
         if (isStopRequested()) return;
 
-        /*Action trajectoryActionChosen;
-        trajectoryActionChosen = tab1.build();*/
-
-        //Actions.runBlocking(
-               /* new ParallelAction(
-                        trajectoryActionChosen,
-                        new SequentialAction(
-                                lift.highLift(),
-                                lift.liftDown()
-                        )
-                        //lift.liftDown()
-                        //trajectoryActionCloseOut
-                )/*
-                new SequentialAction(
-                        /*tab1.build(),
-                        lift.lowLift(),
-                        tab2.build(),
-                        lift.liftDown()
-                    .lineToY(45),
-                    new TranslationalVelConstraint(10),
-                    new ProfileAccelConstraint(-10,10))*/
-                /*new SequentialAction(
-                    tab1.build(),
-                    test.build()
-                )
-
-        );*/
-
-        /*
-        //THIS IS THE AUTO DRAFT!!!!!!!!!Actions.runBlocking(
-
+        Actions.runBlocking(
                 new SequentialAction(
                         new ParallelAction(
-                                toSub.build(),
-                                lift.lowLift()
+                                //lift.highLift(),
+                                //toSub.build(),
+                                //toSub.build(),
+                                lift.highLift(),
+                                toSub.build()
+                                //fwd.build()
+
+                                //trajectoryActionCloseOut
                         ),
                         lift.liftDown(),
-
+                        toSamp1.build()
                 )
-                //.strafeToLinearHeading(new Vector2d(0, -24), 0)
-                .build());*/
+                //lift.highLift()
+        );
 
-    }}
+    }
+}
