@@ -64,27 +64,43 @@ public final class MecanumDrive {
         //FORWARD, UP
 
         // drive model parameters
-        public double inPerTick = 0.0029698069625474;
+        public double inPerTick = 0.0019694205034376;
+        //0.0029698069625474; change
         //in/tick
         //72/36437.5 OLD
         // 72/ 24244 NEW
         //0.0019759862778731 OLD
-      public double lateralInPerTick =  0.0025022932243908666;
+        // 95/48289 trial one
+        //0.0019673217502951
+        // 95/48585.5 trial two
+        //0.001955315886427
+        // 94.75 / 47718 trial
+        //0.0019856238735907
+        //average 0.0019694205034376
+      public double lateralInPerTick = 0.0012612370024994953 ;
+      //0.0012612370024994953
+      //0.0025022932243908666 change
       //0.0014742469504223728 OLD!!!!
 
-        public double trackWidthTicks = 7349.024380366908;
+        public double trackWidthTicks = 7475.905858112534;
+        //7349.024380366908 change
         //7008.338306969918
         //7093.064250763197 OLD
+        //7475.905858112534
 
 
 
         // feedforward parameters (in tick units)
-        public double kS = 1.0086275353255427;
+        public double kS = 1.3295666429965047;
+        //change 1.0086275353255427
         //old 1.3687060198090668
-        public double kV = 0.00038756014977172026 ;
+        public double kV = 0.0003861040865339821 ;
+        //0.000357995905627883
+        //change 0.00038756014977172026
         //old 0.000357995905627883
-        public double kA = 0.00013;
+        public double kA = 0.00007086;
         //old 0.000075
+        //change 0.00013
 
 
         // path profile parameters (in inches)
@@ -97,13 +113,13 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 3; //2.0; /trying 3 instead of 2
+        public double axialGain = 5; //2.0; /trying 3 instead of 2
         public double lateralGain = 5; //6.0; /trying 7 instead of 6
-        public double headingGain = 3; //trying 3 instead of 2 //6.0; // shared with turn
+        public double headingGain = 16.5; //trying 3 instead of 2 //6.0; // shared with turn
 
 
         public double axialVelGain = 0;//3.0;
-        public double lateralVelGain = 0;//0.0;
+        public double lateralVelGain = 0.5;//0.0;
         public double headingVelGain = 0;//0.0; // shared with turn
     }
 
