@@ -200,8 +200,8 @@ public class Agh extends LinearOpMode{
                 .strafeToConstantHeading(new Vector2d(39, -16))
                 .strafeToConstantHeading(new Vector2d(48, -16), new TranslationalVelConstraint(10.0))
                 .strafeToConstantHeading(new Vector2d(49, -55)) //push second back
-                .strafeToLinearHeading(new Vector2d(46, -35), Math.toRadians(96.7)) //quarter not enough, x og 36
-                .strafeToConstantHeading(new Vector2d(36, -72), new TranslationalVelConstraint(10.0));
+                .strafeToLinearHeading(new Vector2d(45, -35), Math.toRadians(97.5)) //quarter not enough, x og 36
+                .strafeToConstantHeading(new Vector2d(45, -72), new TranslationalVelConstraint(10.0));
         /*.strafeToConstantHeading(new Vector2d(49, -60)); //push second back*/
         //.splineToConstantHeading(new Vector2d(40,-41), Math.toRadians(100),new  ,new ProfileAccelConstraint(-5, 5));
         //.strafeToConstantHeading(new Vector2d(0, -72)); //28 for 2, 1  fpor 14?
