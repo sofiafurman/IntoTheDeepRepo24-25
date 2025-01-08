@@ -186,22 +186,8 @@ public class QualOne extends LinearOpMode{
         TrajectoryActionBuilder toSub = drive.actionBuilder(initialPose)
                 .strafeToConstantHeading(new Vector2d(0, -41)); //28 for 2, 1  for 14?
         TrajectoryActionBuilder park = drive.actionBuilder(sub)
-               /* .strafeToConstantHeading(new Vector2d(30, -45))//, new TranslationalVelConstraint(10.0))
-                .strafeToConstantHeading(new Vector2d(30, -16))//, new TranslationalVelConstraint(10.0))
-                .strafeToConstantHeading(new Vector2d(39, -24), new TranslationalVelConstraint(10.0)) //position in front of first
-                .strafeToConstantHeading(new Vector2d(39, -55)) //push first back
-                .strafeToConstantHeading(new Vector2d(39, -16))
-                .strafeToConstantHeading(new Vector2d(48, -16), new TranslationalVelConstraint(10.0))
-                .strafeToConstantHeading(new Vector2d(49, -55)) //push second back
-                .strafeToLinearHeading(new Vector2d(45, -35), Math.toRadians(97.5)) //quarter not enough, x og 36
-                .strafeToConstantHeading(new Vector2d(45, -72), new TranslationalVelConstraint(10.0));*/
                 .strafeToConstantHeading(new Vector2d(58, -60));
-        /*.strafeToConstantHeading(new Vector2d(49, -60)); //push second back*/
-        //.splineToConstantHeading(new Vector2d(40,-41), Math.toRadians(100),new  ,new ProfileAccelConstraint(-5, 5));
-        //.strafeToConstantHeading(new Vector2d(0, -72)); //28 for 2, 1  fpor 14?
-        Action trajectoryActionCloseOut = toSub.endTrajectory().fresh()
-                .strafeTo(new Vector2d(0, -72))
-                .build();
+
 
 
 
@@ -215,19 +201,11 @@ public class QualOne extends LinearOpMode{
         Actions.runBlocking(
                 new SequentialAction(
                         new ParallelAction(
-                                //lift.highLift(),
-                                //toSub.build(),
-                                //toSub.build(),
                                 lift.highLift(),
                                 toSub.build()
-                                //fwd.build()
-
-                                //trajectoryActionCloseOut
                         ),
                         lift.liftDown(),
                         park.build()
                 )
-                //lift.highLift()
         );
-
     }}
