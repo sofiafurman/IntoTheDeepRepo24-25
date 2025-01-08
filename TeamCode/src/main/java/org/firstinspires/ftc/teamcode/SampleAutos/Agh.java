@@ -101,6 +101,7 @@ public class Agh extends LinearOpMode{
                     //true causes the action to return
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(2500);
+
                     return true;
                 } else {
                     //false stops action rerun

@@ -43,6 +43,8 @@ public class QualOne extends LinearOpMode{
             lift = hardwareMap.get(DcMotorEx.class, "vertical_slide"); //config?
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             lift.setDirection(DcMotor.Direction.FORWARD);
+            lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
 
         public class LowLift implements Action{
@@ -83,6 +85,7 @@ public class QualOne extends LinearOpMode{
             //actions formatted via telemetry packets as below
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
+                telemetry.addData("vSlidePos", lift.getCurrentPosition());
                 //powers on motor if not on
                 if (!initialized){
                     lift.setPower(1); //og 1
@@ -91,10 +94,10 @@ public class QualOne extends LinearOpMode{
                 //checks lift's current position
                 double pos = lift.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos < 2520) { //og 2500
+                if (pos < 3500) { //og 2500
                     //true causes the action to return
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    lift.setTargetPosition(2520);
+                    lift.setTargetPosition(3500);
                     return true;
                 } else {
                     //false stops action rerun
@@ -124,14 +127,14 @@ public class QualOne extends LinearOpMode{
                 //checks lift's current position
                 double pos = lift.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos > 0) {
+                if (pos > 50) {
                     //true causes the action to return
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    lift.setTargetPosition(0);
+                    lift.setTargetPosition(30);
                     return true;
                 } else {
                     //false stops action rerun
-
+                    lift.setPower(0);
                     return false;
                 }
             }
@@ -183,8 +186,9 @@ public class QualOne extends LinearOpMode{
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
+
         TrajectoryActionBuilder toSub = drive.actionBuilder(initialPose)
-                .strafeToConstantHeading(new Vector2d(0, -41)); //28 for 2, 1  for 14?
+                .strafeToConstantHeading(new Vector2d(0, -41), new TranslationalVelConstraint(10));
         TrajectoryActionBuilder park = drive.actionBuilder(sub)
                 .strafeToConstantHeading(new Vector2d(58, -60));
 
@@ -192,7 +196,6 @@ public class QualOne extends LinearOpMode{
 
 
         // actions that need to happen on init; for instance, a claw tightening.
-
 
         waitForStart();
 
