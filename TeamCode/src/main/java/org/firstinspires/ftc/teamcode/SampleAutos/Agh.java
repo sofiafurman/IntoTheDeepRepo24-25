@@ -67,8 +67,8 @@ public class Agh extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos < 2512) {
                     //true causes the action to return
-                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(2512);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     return true;
                 } else {
                     //false stops action rerun
@@ -99,8 +99,8 @@ public class Agh extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos < 2500) {
                     //true causes the action to return
-                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(2500);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                     return true;
                 } else {
@@ -133,8 +133,9 @@ public class Agh extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos > 0) {
                     //true causes the action to return
-                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(0);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
                     return true;
                 } else {
                     //false stops action rerun
