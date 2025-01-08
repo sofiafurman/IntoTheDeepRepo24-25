@@ -26,7 +26,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
-public class QualOne extends LinearOpMode{
+public class QualOneMiddle extends LinearOpMode{
 
     double quarter = 92.5; //"90 degree" turn
     double tile = 20; //"24 inches;" one tile
