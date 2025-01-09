@@ -22,11 +22,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 
 
-@Config @Autonomous(name = "Middle Auto 13", group = "Autonomous")
+@Config @Autonomous(name = "Right Auto 13", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
-public class QualOneMiddle extends LinearOpMode{
+public class Right extends LinearOpMode{
 
     double quarter = 92.5; //"90 degree" turn
     double tile = 20; //"24 inches;" one tile
@@ -43,7 +43,8 @@ public class QualOneMiddle extends LinearOpMode{
             lift = hardwareMap.get(DcMotorEx.class, "vertical_slide"); //config?
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             lift.setDirection(DcMotor.Direction.FORWARD);
-            lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //lift.setTargetPosition(0);
+            //lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
 
@@ -63,8 +64,9 @@ public class QualOneMiddle extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos < 2512) {
                     //true causes the action to return
-                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(2512);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
                     return true;
                 } else {
                     //false stops action rerun
@@ -96,8 +98,9 @@ public class QualOneMiddle extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos < 3500) { //og 2500
                     //true causes the action to return
-                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(3500);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
                     return true;
                 } else {
                     //false stops action rerun
@@ -129,8 +132,8 @@ public class QualOneMiddle extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos > 50) {
                     //true causes the action to return
-                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(30);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     return true;
                 } else {
                     //false stops action rerun
@@ -181,14 +184,14 @@ public class QualOneMiddle extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         //Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(270));
-        Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(3 * quarter));
+        Pose2d initialPose = new Pose2d(24, -72, Math.toRadians(3 * quarter));
         Pose2d sub = new Pose2d(0, -41, Math.toRadians(3 * quarter));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
 
         TrajectoryActionBuilder toSub = drive.actionBuilder(initialPose)
-                .strafeToConstantHeading(new Vector2d(0, -41), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(0, -44), new TranslationalVelConstraint(10));
         TrajectoryActionBuilder park = drive.actionBuilder(sub)
                 .strafeToConstantHeading(new Vector2d(58, -60));
 
