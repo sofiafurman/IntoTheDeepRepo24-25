@@ -292,6 +292,9 @@ public class LASER_Teleop extends LinearOpMode {
             } else if (slideVertical.isBusy() && slideVertical.getCurrentPosition() < 1500 && slideVertical.getCurrentPosition() > 150) {
                 wristMotor.setPower(0.2);
                 wristMotor.setTargetPosition(130);
+            } else if (slideHorizontal.getCurrentPosition() < -300) {
+                wristMotor.setPower(0.5);
+                wristMotor.setTargetPosition(400);
             } else {
                 wristMotor.setPower(0.7);
                 wristMotor.setTargetPosition(15);
