@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
@@ -31,9 +32,10 @@ public class LASER_Teleop extends LinearOpMode {
         int invDir = 1;    // used to activate inverted direction
         boolean keyA = false, keyB = false;    // used for toggle keys
 
-        double C_LATERAL, C_AXIAL, C_YAW, C_HORIZ_SLIDE;
-        boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO, C_IN_SERVO_TRANSF, C_INTAKE, C_SPIT,
-                PREV_C_INTAKE, C_VERT_SLIDE_UP = false, PREV_C_VERT_SLIDE_UP = false,
+        double C_LATERAL, C_AXIAL, C_YAW, C_HORIZ_SLIDE, C_HORIZ_SLIDE_RESET;
+        boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO,
+                C_IN_SERVO_TRANSF, C_INTAKE, C_SPIT,
+                C_VERT_SLIDE_UP = false, PREV_C_VERT_SLIDE_UP = false,
                 C_VERT_SLIDE_DWN = false, PREV_C_VERT_SLIDE_DWN = false;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
@@ -125,6 +127,7 @@ public class LASER_Teleop extends LinearOpMode {
             PREV_C_VERT_SLIDE_DWN = C_VERT_SLIDE_DWN;
             C_VERT_SLIDE_DWN      = gamepad2.left_bumper;
             C_HORIZ_SLIDE         = gamepad2.left_stick_y;
+            C_HORIZ_SLIDE_RESET   = gamepad2.right_trigger + gamepad2.left_trigger;
             C_OUT_SERVO           = gamepad2.b;
             C_IN_SERVO_TRANSF     = gamepad2.y;
             C_SPIT                = gamepad2.x;
@@ -213,15 +216,18 @@ public class LASER_Teleop extends LinearOpMode {
             switch (vSlideMotorState) {
                 case 0:
                     if (C_VERT_SLIDE_UP && !PREV_C_VERT_SLIDE_UP) {vSlideMotorState = 1;}
+                    slideVertical.setPower(1.0);
                     slideVertical.setTargetPosition(78);
                     break;
                 case 1:
                     if (C_VERT_SLIDE_UP && !PREV_C_VERT_SLIDE_UP) {vSlideMotorState = 2;}
                     else if (C_VERT_SLIDE_DWN && !PREV_C_VERT_SLIDE_DWN) {vSlideMotorState = 0;}
+                    slideVertical.setPower(1.0);
                     slideVertical.setTargetPosition(2669);
                     break;
                 case 2:
                     if (C_VERT_SLIDE_DWN && !PREV_C_VERT_SLIDE_DWN) {vSlideMotorState = 1;}
+                    slideVertical.setPower(0.7);
                     slideVertical.setTargetPosition(5024);
                     break;
             }
@@ -244,6 +250,13 @@ public class LASER_Teleop extends LinearOpMode {
                 slideHorizontal.setPower(C_HORIZ_SLIDE);
             } else {
                 slideHorizontal.setPower(0);
+            }
+            while (C_HORIZ_SLIDE_RESET >= 1.0 && opModeIsActive()) {
+                slideHorizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                slideHorizontal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                slideHorizontal.setPower(0.3);
+                sleep(500);
+                C_HORIZ_SLIDE_RESET = gamepad2.right_trigger + gamepad2.left_trigger;
             }
 
             // OUTTAKE SERVO CONTROLS
@@ -279,6 +292,9 @@ public class LASER_Teleop extends LinearOpMode {
             } else if (slideVertical.isBusy() && slideVertical.getCurrentPosition() < 1500 && slideVertical.getCurrentPosition() > 150) {
                 wristMotor.setPower(0.2);
                 wristMotor.setTargetPosition(130);
+            } else if (slideHorizontal.getCurrentPosition() < -300) {
+                wristMotor.setPower(0.5);
+                wristMotor.setTargetPosition(400);
             } else {
                 wristMotor.setPower(0.7);
                 wristMotor.setTargetPosition(15);
@@ -321,8 +337,6 @@ public class LASER_Teleop extends LinearOpMode {
             telemetry.addData("hSlidePos", slideHorizontal.getCurrentPosition());
 
             telemetry.update();
-
-            PREV_C_INTAKE = C_INTAKE;
 
             sleep(CYCLE_MS);
 

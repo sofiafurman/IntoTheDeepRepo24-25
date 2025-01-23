@@ -28,8 +28,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 
 
-@Config
-@Autonomous(name = "slayyyyyyyyayayayaya", group = "Autonomous")
+@Config @Autonomous(name = "don't use", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
@@ -68,8 +67,8 @@ public class Agh extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos < 2512) {
                     //true causes the action to return
-                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(2512);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     return true;
                 } else {
                     //false stops action rerun
@@ -100,8 +99,9 @@ public class Agh extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos < 2500) {
                     //true causes the action to return
-                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(2500);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
                     return true;
                 } else {
                     //false stops action rerun
@@ -133,8 +133,9 @@ public class Agh extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos > 0) {
                     //true causes the action to return
-                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(0);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
                     return true;
                 } else {
                     //false stops action rerun
