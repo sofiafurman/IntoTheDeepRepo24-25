@@ -64,7 +64,7 @@ public final class MecanumDrive {
         //FORWARD, UP
 
         // drive model parameters
-        public double inPerTick = 0.0019694205034376;
+        public double inPerTick = 0.0019715212895082;
         //0.0029698069625474; change
         //in/tick
         //72/36437.5 OLD
@@ -77,12 +77,15 @@ public final class MecanumDrive {
         // 94.75 / 47718 trial
         //0.0019856238735907
         //average 0.0019694205034376
-      public double lateralInPerTick = 0.0012612370024994953 ;
+
+
+        // 71.062992 / 36,044.75
+      public double lateralInPerTick = 0.00147751771777816 ;
       //0.0012612370024994953
       //0.0025022932243908666 change
       //0.0014742469504223728 OLD!!!!
 
-        public double trackWidthTicks = 7475.905858112534;
+        public double trackWidthTicks = 7084.246555911058;
         //7349.024380366908 change
         //7008.338306969918
         //7093.064250763197 OLD
@@ -91,16 +94,18 @@ public final class MecanumDrive {
 
 
         // feedforward parameters (in tick units)
-        public double kS = 1.3295666429965047;
+        public double kS = 1.7502538645786032;
         //change 1.0086275353255427
         //old 1.3687060198090668
-        public double kV = 0.0003861040865339821 ;
+        public double kV = 0.00037376236901697093 ;
         //0.000357995905627883
         //change 0.00038756014977172026
         //old 0.000357995905627883
         public double kA = 0.00007086;
         //old 0.000075
         //change 0.00013
+        //0.00006
+        //0.00007086
 
 
         // path profile parameters (in inches)
@@ -115,7 +120,7 @@ public final class MecanumDrive {
         // path controller gains
         public double axialGain = 5; //og 3 new 5
         public double lateralGain = 5; //og 5 new 5
-        public double headingGain = 16.5; //og 3 new 16.5
+        public double headingGain = 7; //og 3 new 16.5
 
 
         public double axialVelGain = 0;
