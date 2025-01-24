@@ -28,11 +28,11 @@ public class LED_Test extends LinearOpMode{
                 sleep(250);
             }
             while (gamepad1.y && opModeIsActive()) {
-                blinkin.setPosition(0.335);
-                sleep(3000);
-                blinkin.setPosition(0.405);
+                blinkin.setPosition(0.695);
                 sleep(3000);
                 blinkin.setPosition(0.27);
+                sleep(3000);
+                blinkin.setPosition(0.335);
                 sleep(3000);
             }
             telemetry.addData("blinkPatt:", blinkPatt);

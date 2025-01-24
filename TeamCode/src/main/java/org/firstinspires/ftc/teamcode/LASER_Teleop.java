@@ -22,6 +22,7 @@ public class LASER_Teleop extends LinearOpMode {
     private Servo   outtakeServo;
     private Servo   intakeServo;
     private Servo   blockPushServo;
+    private Servo   lights;
 
     @Override
     public void runOpMode() {
@@ -47,8 +48,9 @@ public class LASER_Teleop extends LinearOpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
 
+        lights = hardwareMap.get(Servo.class, "light_strip");
         intakeServo    = hardwareMap.get(Servo.class, "intake_servo");
-        blockPushServo = hardwareMap.get(Servo.class, "block_push_servo");
+        //blockPushServo = hardwareMap.get(Servo.class, "block_push_servo");
         double bPushServoSet;
         outtakeServo   = hardwareMap.get(Servo.class, "outtake_servo");
         final double OUT_SERVO_DOWN_POS = 0.7;
@@ -264,6 +266,13 @@ public class LASER_Teleop extends LinearOpMode {
                 sleep(500);
                 C_HORIZ_SLIDE_RESET = gamepad2.right_trigger + gamepad2.left_trigger;
             }
+            if (slideHorizontal.getCurrentPosition() > -200) {
+                lights.setPosition(0.695);
+            } else if (slideHorizontal.getCurrentPosition() < -1500) {
+                lights.setPosition(0.335);
+            } else {
+                lights.setPosition(0.27);
+            }
 
             // OUTTAKE SERVO CONTROLS
             if (C_OUT_SERVO) {
@@ -288,6 +297,7 @@ public class LASER_Teleop extends LinearOpMode {
                 intakeServo.setPosition(0.5);
             }
 
+            /*
             // BLOCK PUSH SERVO CONTROLS
             C_BPUSHSERVO_IN /= 2;
             C_BPUSHSERVO_IN += 0.5;
@@ -295,6 +305,7 @@ public class LASER_Teleop extends LinearOpMode {
             C_BPUSHSERVO_OUT += 0.5;
             bPushServoSet = C_BPUSHSERVO_IN - C_BPUSHSERVO_OUT;
             blockPushServo.setPosition(bPushServoSet);
+            */
 
             // INTAKE WRIST CONTROLS
             if (C_INTAKE || C_SPIT) {
