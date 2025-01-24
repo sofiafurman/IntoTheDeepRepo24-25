@@ -12,15 +12,17 @@ public class LASER_Teleop extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    private DcMotor leftFrontDrive  = null;
-    private DcMotor leftBackDrive   = null;
-    private DcMotor rightFrontDrive = null;
-    private DcMotor rightBackDrive  = null;
-    private DcMotor slideVertical   = null;
-    private DcMotor slideHorizontal = null;
-    private DcMotor wristMotor      = null;
+    private DcMotor leftFrontDrive;
+    private DcMotor leftBackDrive;
+    private DcMotor rightFrontDrive;
+    private DcMotor rightBackDrive;
+    private DcMotor slideVertical;
+    private DcMotor slideHorizontal;
+    private DcMotor wristMotor;
     private Servo   outtakeServo;
     private Servo   intakeServo;
+    private Servo   blockPushServo;
+    private Servo   lights;
 
     @Override
     public void runOpMode() {
@@ -32,7 +34,8 @@ public class LASER_Teleop extends LinearOpMode {
         int invDir = 1;    // used to activate inverted direction
         boolean keyA = false, keyB = false;    // used for toggle keys
 
-        double C_LATERAL, C_AXIAL, C_YAW, C_HORIZ_SLIDE, C_HORIZ_SLIDE_RESET;
+        double C_LATERAL, C_AXIAL, C_YAW, C_HORIZ_SLIDE, C_HORIZ_SLIDE_RESET,
+               C_BPUSHSERVO_IN, C_BPUSHSERVO_OUT;
         boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO,
                 C_IN_SERVO_TRANSF, C_INTAKE, C_SPIT,
                 C_VERT_SLIDE_UP = false, PREV_C_VERT_SLIDE_UP = false,
@@ -45,11 +48,14 @@ public class LASER_Teleop extends LinearOpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
 
-        intakeServo  = hardwareMap.get(Servo.class, "intake_servo");
-        outtakeServo = hardwareMap.get(Servo.class, "outtake_servo");
+        lights = hardwareMap.get(Servo.class, "light_strip");
+        intakeServo    = hardwareMap.get(Servo.class, "intake_servo");
+        //blockPushServo = hardwareMap.get(Servo.class, "block_push_servo");
+        double bPushServoSet;
+        outtakeServo   = hardwareMap.get(Servo.class, "outtake_servo");
         final double OUT_SERVO_DOWN_POS = 0.7;
         final double OUT_SERVO_UP_POS   = 0.06;
-        final double SERVO_SPEED        = -10;
+        final double SERVO_SPEED        = -20;
         double outtakeServoPosition     = outtakeServo.getPosition();
 
         slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
@@ -122,6 +128,8 @@ public class LASER_Teleop extends LinearOpMode {
             C_YAW                 = gamepad1.right_stick_x;
             C_HALF_SPEED          = gamepad1.a;
             C_INV_DIR             = gamepad1.b;
+            C_BPUSHSERVO_OUT      = gamepad1.right_trigger;
+            C_BPUSHSERVO_IN       = gamepad1.left_trigger;
             PREV_C_VERT_SLIDE_UP  = C_VERT_SLIDE_UP;
             C_VERT_SLIDE_UP       = gamepad2.right_bumper;
             PREV_C_VERT_SLIDE_DWN = C_VERT_SLIDE_DWN;
@@ -258,6 +266,13 @@ public class LASER_Teleop extends LinearOpMode {
                 sleep(500);
                 C_HORIZ_SLIDE_RESET = gamepad2.right_trigger + gamepad2.left_trigger;
             }
+            if (slideHorizontal.getCurrentPosition() > -200) {
+                lights.setPosition(0.695);
+            } else if (slideHorizontal.getCurrentPosition() < -1500) {
+                lights.setPosition(0.335);
+            } else {
+                lights.setPosition(0.27);
+            }
 
             // OUTTAKE SERVO CONTROLS
             if (C_OUT_SERVO) {
@@ -281,6 +296,16 @@ public class LASER_Teleop extends LinearOpMode {
             } else {
                 intakeServo.setPosition(0.5);
             }
+
+            /*
+            // BLOCK PUSH SERVO CONTROLS
+            C_BPUSHSERVO_IN /= 2;
+            C_BPUSHSERVO_IN += 0.5;
+            C_BPUSHSERVO_OUT /= 2;
+            C_BPUSHSERVO_OUT += 0.5;
+            bPushServoSet = C_BPUSHSERVO_IN - C_BPUSHSERVO_OUT;
+            blockPushServo.setPosition(bPushServoSet);
+            */
 
             // INTAKE WRIST CONTROLS
             if (C_INTAKE || C_SPIT) {
