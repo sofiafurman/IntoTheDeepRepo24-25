@@ -29,7 +29,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 //this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
 @Config
-@Autonomous(name = "slay bbg", group = "Autonomous")
+@Autonomous(name = "4speci", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
@@ -191,18 +191,46 @@ public class fourSpeci extends LinearOpMode{
         slideVertical lift = new slideVertical(hardwareMap);
 
         TrajectoryActionBuilder toSub = drive.actionBuilder(initialPose)
-                .strafeToConstantHeading(new Vector2d(0, -41)) //28 for 2, 1  for 14?
+                .strafeToConstantHeading(new Vector2d(0, -41))
                 .setTangent(0);
-        TrajectoryActionBuilder push3score1 = drive.actionBuilder(sub)
-                .splineToSplineHeading(new Pose2d(48, -20, Math.toRadians(90)), Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(52, -24), Math.toRadians(270));
 
-                //.strafeToConstantHeading(new Vector2d(39, -24), new TranslationalVelConstraint(10.0)) //position in front of first
+        TrajectoryActionBuilder push3 = drive.actionBuilder(sub)
+                .splineToSplineHeading(new Pose2d(48, -20, Math.toRadians(90)), Math.toRadians(90)) //position by first sample
+
+                .splineToConstantHeading(new Vector2d(52, -24), Math.toRadians(270))
+                .strafeToConstantHeading(new Vector2d(52, -72)) //first sample pushed
+                .strafeToConstantHeading(new Vector2d(52, -20))
+
+                .strafeToConstantHeading(new Vector2d(56, -24))
+                .strafeToConstantHeading(new Vector2d(56, -72)) //second sample pushed
+                .strafeToConstantHeading(new Vector2d(56, -20))
+
+                .splineToConstantHeading(new Vector2d(60, -24), Math.toRadians(270))
+                .strafeToConstantHeading(new Vector2d(60, -72)) //third sample pushed
+
+                .splineToConstantHeading(new Vector2d(49, -60), Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(38, -72), Math.toRadians(270));
+
+        TrajectoryActionBuilder score1 = drive.actionBuilder(sub)
+                .splineToSplineHeading(new Pose2d(0, -41, Math.toRadians(270)), Math.toRadians(270)); //score a specimen
+
+        TrajectoryActionBuilder score2 = drive.actionBuilder(sub)
+                .splineToSplineHeading(new Pose2d(38, -72, Math.toRadians(270)), Math.toRadians(90)) //score a specimen
+                .splineToSplineHeading(new Pose2d(0, -41, Math.toRadians(270)), Math.toRadians(270)); //score a specimen
+
+        TrajectoryActionBuilder score3 = drive.actionBuilder(sub)
+                .splineToSplineHeading(new Pose2d(38, -72, Math.toRadians(270)), Math.toRadians(90)) //score a specimen
+                .splineToSplineHeading(new Pose2d(0, -41, Math.toRadians(270)), Math.toRadians(270)); //score a specimen
+
+        TrajectoryActionBuilder score4 = drive.actionBuilder(sub)
+                .splineToSplineHeading(new Pose2d(38, -72, Math.toRadians(270)), Math.toRadians(90)) //score a specimen
+                .splineToSplineHeading(new Pose2d(0, -41, Math.toRadians(270)), Math.toRadians(270)); //score a specimen
 
 
-        Action trajectoryActionCloseOut = toSub.endTrajectory().fresh()
-                .strafeTo(new Vector2d(0, -72))
-                .build();
+        //.strafeToConstantHeading(new Vector2d(39, -24), new TranslationalVelConstraint(10.0)) //position in front of first
+
+
+
 
 
 
@@ -213,15 +241,44 @@ public class fourSpeci extends LinearOpMode{
 
         if (isStopRequested()) return;
 
-        Actions.runBlocking(
+        /*Actions.runBlocking(
                 new SequentialAction(
+                        toSub.build(),
+                        push3.build(),
+                        score1.build(),
+                        score2.build(),
+                        score3.build(),
+                        score4.build()
                         new ParallelAction(
 
                         )
 
                 )
 
-        );
+        );*/
+
+        Actions.runBlocking(
+                drive.actionBuilder(initialPose)
+                        .strafeToConstantHeading(new Vector2d(0, -41))
+                        .setTangent(0)
+                        .splineToSplineHeading(new Pose2d(48, -20, Math.toRadians(90)), Math.toRadians(90)) //position by first sample
+
+                        .splineToConstantHeading(new Vector2d(52, -24), Math.toRadians(270))
+                        .strafeToConstantHeading(new Vector2d(52, -72)) //first sample pushed
+                        .strafeToConstantHeading(new Vector2d(52, -20))
+
+                        .strafeToConstantHeading(new Vector2d(56, -24))
+                        .strafeToConstantHeading(new Vector2d(56, -72)) //second sample pushed
+                        .strafeToConstantHeading(new Vector2d(56, -20))
+
+                        .splineToConstantHeading(new Vector2d(60, -24), Math.toRadians(270))
+                        .strafeToConstantHeading(new Vector2d(60, -72)) //third sample pushed
+
+                        .splineToConstantHeading(new Vector2d(49, -60), Math.toRadians(180))
+                        .splineToConstantHeading(new Vector2d(38, -72), Math.toRadians(270))
+                        .build());
+
+
 
     }
 }
