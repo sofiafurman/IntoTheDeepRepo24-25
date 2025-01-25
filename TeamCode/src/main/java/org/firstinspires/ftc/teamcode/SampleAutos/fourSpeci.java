@@ -259,24 +259,34 @@ public class fourSpeci extends LinearOpMode{
 
         Actions.runBlocking(
                 drive.actionBuilder(initialPose)
-                        .strafeToConstantHeading(new Vector2d(0, -41))
+                        .strafeToConstantHeading(new Vector2d(0, -50))
                         .setTangent(0)
-                        .splineToSplineHeading(new Pose2d(48, -20, Math.toRadians(90)), Math.toRadians(90)) //position by first sample
+                        /*.splineToConstantHeading(new Vector2d(32, -20), Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(40, -10), Math.toRadians(0))
+                        .splineToConstantHeading(new Vector2d(48, -20), Math.toRadians(270)) //position by first sample*/
+                        .splineToConstantHeading(new Vector2d(30, -40), Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(30, -24), Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(39, -72), Math.toRadians(90))
+                        //.splineToConstantHeading(new Vector2d(40, -10), Math.toRadians(0))
+                        //.splineToConstantHeading(new Vector2d(44, -20), Math.toRadians(0))
 
-                        .splineToConstantHeading(new Vector2d(52, -24), Math.toRadians(270))
-                        .strafeToConstantHeading(new Vector2d(52, -72)) //first sample pushed
-                        .strafeToConstantHeading(new Vector2d(52, -20))
+                        //.splineToConstantHeading(new Vector2d(52, -24), Math.toRadians(270))
+                        /*.strafeToConstantHeading(new Vector2d(48, -70))
+                        .strafeToLinearHeading(new Vector2d(48, -20),  Math.toRadians(90)) //first sample pushed
+
 
                         .strafeToConstantHeading(new Vector2d(56, -24))
-                        .strafeToConstantHeading(new Vector2d(56, -72)) //second sample pushed
+                        .strafeToConstantHeading(new Vector2d(56, -70)) //second sample pushed
                         .strafeToConstantHeading(new Vector2d(56, -20))
 
                         .splineToConstantHeading(new Vector2d(60, -24), Math.toRadians(270))
                         .strafeToConstantHeading(new Vector2d(60, -72)) //third sample pushed
 
                         .splineToConstantHeading(new Vector2d(49, -60), Math.toRadians(180))
-                        .splineToConstantHeading(new Vector2d(38, -72), Math.toRadians(270))
+                        .splineToConstantHeading(new Vector2d(38, -70), Math.toRadians(270))*/
                         .build());
+
 
 
 
