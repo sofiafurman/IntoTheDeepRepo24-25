@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.SampleAutos;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 // RR-specific imports
 import com.acmerobotics.dashboard.config.Config;

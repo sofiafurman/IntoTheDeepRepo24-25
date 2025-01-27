@@ -1,13 +1,11 @@
-package org.firstinspires.ftc.teamcode.SampleAutos;
+package org.firstinspires.ftc.teamcode.Autonomous;
 import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -21,15 +19,20 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 
 
-
-@Config @Autonomous(name = "Right Auto 13", group = "Autonomous")
+//this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
+@Config
+@Autonomous(name = "4speci attempt 2", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
-public class Right extends LinearOpMode{
+public class fourSpeciTwo extends LinearOpMode{
 
-    double quarter = 92.5; //"90 degree" turn
-    double tile = 20; //"24 inches;" one tile
+    // if odometry is not properly tuned or constantly being retuned:
+    // you MIGHT find it useful to change these values and use multiples of them instead of direct number
+    // keep in mind that this may not work well
+    // i.e. if something is wrong with acceleration/deceleration, two lengths may not be equal to 2 * (one length)
+    double quarter = 90; // "90 degrees" / right angle turn
+    double tile = 24; // "24 inches" / one tile
 
     //mechanism instantiation
 
@@ -43,9 +46,6 @@ public class Right extends LinearOpMode{
             lift = hardwareMap.get(DcMotorEx.class, "vertical_slide"); //config?
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             lift.setDirection(DcMotor.Direction.FORWARD);
-            //lift.setTargetPosition(0);
-            //lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
 
         public class LowLift implements Action{
@@ -64,9 +64,8 @@ public class Right extends LinearOpMode{
                 packet.put("liftPos", pos);
                 if (pos < 2512) {
                     //true causes the action to return
-                    lift.setTargetPosition(2512);
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+                    lift.setTargetPosition(2512);
                     return true;
                 } else {
                     //false stops action rerun
@@ -87,7 +86,6 @@ public class Right extends LinearOpMode{
             //actions formatted via telemetry packets as below
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                telemetry.addData("vSlidePos", lift.getCurrentPosition());
                 //powers on motor if not on
                 if (!initialized){
                     lift.setPower(1); //og 1
@@ -96,11 +94,10 @@ public class Right extends LinearOpMode{
                 //checks lift's current position
                 double pos = lift.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos < 3500) { //og 2500
+                if (pos < 2500) {
                     //true causes the action to return
-                    lift.setTargetPosition(3500);
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+                    lift.setTargetPosition(2500);
                     return true;
                 } else {
                     //false stops action rerun
@@ -130,14 +127,14 @@ public class Right extends LinearOpMode{
                 //checks lift's current position
                 double pos = lift.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos > 50) {
+                if (pos > 0) {
                     //true causes the action to return
-                    lift.setTargetPosition(30);
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    lift.setTargetPosition(0);
                     return true;
                 } else {
                     //false stops action rerun
-                    lift.setPower(0);
+
                     return false;
                 }
             }
@@ -184,21 +181,69 @@ public class Right extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         //Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(270));
-        Pose2d initialPose = new Pose2d(24, -72, Math.toRadians(3 * quarter));
-        Pose2d sub = new Pose2d(0, -41, Math.toRadians(3 * quarter));
-        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
+        Pose2d initPose = new Pose2d(0, -72, Math.toRadians(270));
+        Pose2d sub = new Pose2d(0, -41, Math.toRadians(270));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, initPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
+        TrajectoryActionBuilder push3noHeadingKISS = drive.actionBuilder(initPose)
+                // GUI: KISS - 1 spec 3 push NH
 
-        TrajectoryActionBuilder toSub = drive.actionBuilder(initialPose)
-                .strafeToConstantHeading(new Vector2d(0, -44), new TranslationalVelConstraint(10));
-        TrajectoryActionBuilder park = drive.actionBuilder(sub)
-                .strafeToConstantHeading(new Vector2d(58, -60));
+                // NOTE:
+                    // this will not actually work since heading stays fixed
+                    // use for major path changes only
+                    // do not use for minor path changes b/c turning may cause... unwanted collisions
+
+                // PART 1: score 1st spec & prepare
+                .splineToConstantHeading(new Vector2d(0, -41), Math.toRadians(90)) //2 // 1 spec
+                .splineToConstantHeading(new Vector2d(0, -50), Math.toRadians(90)) //3 // move back to avoid sub
+                .splineToConstantHeading(new Vector2d(30, -40), Math.toRadians(90)) //4 // move to samp area
+                .splineToConstantHeading(new Vector2d(30, -24), Math.toRadians(90)) //5 // move to be in line with samps
+
+                //PART 2a: 1st push
+                .splineToConstantHeading(new Vector2d(39, -24), Math.toRadians(270)) //6 // position
+                .splineToConstantHeading(new Vector2d(39, -67), Math.toRadians(90)) //7 // push
+                .splineToConstantHeading(new Vector2d(39, -24), Math.toRadians(90)) //8 // back to samp area
+
+                //PART 2b: 2nd push
+                .splineToConstantHeading(new Vector2d(48, -24), Math.toRadians(270)) //9 // position
+                .splineToConstantHeading(new Vector2d(48, -67), Math.toRadians(270)) //10 // push
+                .splineToConstantHeading(new Vector2d(48, -24), Math.toRadians(90)) //11 // back to samp area
+
+                //PART 2c: 3rd push
+                .splineToConstantHeading(new Vector2d(57, -24), Math.toRadians(270)) //12 // position
+                .splineToConstantHeading(new Vector2d(57, -67), Math.toRadians(270)) //13 // push
+
+                //PART 3: pick up 2nd spec
+                .splineToConstantHeading(new Vector2d(48, -60), Math.toRadians(180)) //14 // quarter circle 1
+                .splineToConstantHeading(new Vector2d(39, -67), Math.toRadians(270)); //15 // quarter circle 2
+
+
+        TrajectoryActionBuilder score3 = drive.actionBuilder(sub)
+                .splineToSplineHeading(new Pose2d(48, -20, Math.toRadians(90)), Math.toRadians(90)) //position by first sample
+
+                .splineToConstantHeading(new Vector2d(52, -24), Math.toRadians(270))
+                .strafeToConstantHeading(new Vector2d(52, -72)) //first sample pushed
+                .strafeToConstantHeading(new Vector2d(52, -20))
+
+                .strafeToConstantHeading(new Vector2d(56, -24))
+                .strafeToConstantHeading(new Vector2d(56, -72)) //second sample pushed
+                .strafeToConstantHeading(new Vector2d(56, -20))
+
+                .splineToConstantHeading(new Vector2d(60, -24), Math.toRadians(270))
+                .strafeToConstantHeading(new Vector2d(60, -72)) //third sample pushed
+
+                .splineToConstantHeading(new Vector2d(49, -60), Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(38, -72), Math.toRadians(270));
+
+
+
 
 
 
 
         // actions that need to happen on init; for instance, a claw tightening.
+
 
         waitForStart();
 
@@ -206,12 +251,13 @@ public class Right extends LinearOpMode{
 
         Actions.runBlocking(
                 new SequentialAction(
-                        new ParallelAction(
-                                lift.highLift(),
-                                toSub.build()
-                        ),
-                        lift.liftDown(),
-                        park.build()
+                    score3.build()
+
                 )
+
         );
-    }}
+
+
+
+    }
+}
