@@ -3,6 +3,7 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
@@ -182,10 +183,16 @@ public class fourSpeciTwo extends LinearOpMode{
     public void runOpMode() throws InterruptedException {
 
         //Pose2d initPose = new Pose2d(0, -72, Math.toRadians(270)); put this back in
-        Pose2d initPose = new Pose2d(0, -41, Math.toRadians(270));
+        Pose2d initPose = new Pose2d(0, -50, Math.toRadians(270));
+        Pose2d accPose = new Pose2d(0, -72, Math.toRadians(270));
         Pose2d sub = new Pose2d(0, -41, Math.toRadians(270));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initPose);
         slideVertical lift = new slideVertical(hardwareMap);
+
+        TrajectoryActionBuilder toSub = drive.actionBuilder(accPose)
+                .strafeToConstantHeading(new Vector2d(0, -41)); //28 for 2, 1  for 14?
+        TrajectoryActionBuilder back = drive.actionBuilder(sub)
+                .strafeToConstantHeading(new Vector2d(0, -50)); //28 for 2, 1  for 14?
 
         TrajectoryActionBuilder push3noHeadingKISS = drive.actionBuilder(initPose)
                 // GUI: KISS - 1 spec 3 push NH
@@ -197,27 +204,37 @@ public class fourSpeciTwo extends LinearOpMode{
 
                 // PART 1: score 1st spec & prepare
                 //.splineToConstantHeading(new Vector2d(0, -41), Math.toRadians(90)) //2 // 1 spec put this back in
-                .splineToConstantHeading(new Vector2d(0, -50), Math.toRadians(90)) //3 // move back to avoid sub
-                .splineToConstantHeading(new Vector2d(30, -40), Math.toRadians(90)) //4 // move to samp area
-                .splineToConstantHeading(new Vector2d(30, -24), Math.toRadians(90)) //5 // move to be in line with samps
+                //.splineToConstantHeading(new Vector2d(0, -50), Math.toRadians(90)) //3 // move back to avoid sub
+                //.splineToConstantHeading(new Vector2d(30, -40), Math.toRadians(90)) //4 // move to samp area
+                //.splineToConstantHeading(new Vector2d(30, -24), Math.toRadians(90)) //5 // move to be in line with samps
+
+                .splineToLinearHeading(new Pose2d(30, -40, Math.toRadians(90)), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(30, -26), Math.toRadians(90))
 
                 //PART 2a: 1st push
-                .splineToConstantHeading(new Vector2d(39, -24), Math.toRadians(270)) //6 // position
-                .splineToConstantHeading(new Vector2d(39, -45), Math.toRadians(90)) //7 // push // y originally -67
-                .splineToConstantHeading(new Vector2d(39, -24), Math.toRadians(90)) //8 // back to samp area
+                .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(270)) //6 // position
+                .splineToConstantHeading(new Vector2d(39, -55), Math.toRadians(90)) //7 // push // y originally -67
+                .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(90)) //8 // back to samp area
 
                 //PART 2b: 2nd push
-                .splineToConstantHeading(new Vector2d(48, -24), Math.toRadians(270)) //9 // position
-                .splineToConstantHeading(new Vector2d(48, -45), Math.toRadians(270)) //10 // push
-                .splineToConstantHeading(new Vector2d(48, -24), Math.toRadians(90)) //11 // back to samp area
+                .splineToConstantHeading(new Vector2d(48, -26), Math.toRadians(270)) //9 // position
+                .splineToConstantHeading(new Vector2d(48, -55), Math.toRadians(270)) //10 // push
 
+                //.splineToConstantHeading(new Vector2d(48, -26), Math.toRadians(90)) //11 // back to samp area
+
+                .splineToConstantHeading(new Vector2d(43, -60), Math.toRadians(180)) //14 // quarter circle 1
+                .splineToConstantHeading(new Vector2d(38, -67), Math.toRadians(270)); //15 // quarter circle 2
+
+                /*
                 //PART 2c: 3rd push
-                .splineToConstantHeading(new Vector2d(57, -24), Math.toRadians(270)) //12 // position
-                .splineToConstantHeading(new Vector2d(57, -67), Math.toRadians(270)) //13 // push
+                .splineToConstantHeading(new Vector2d(54, -24), Math.toRadians(270)) //12 // position
+                .splineToConstantHeading(new Vector2d(54, -55), Math.toRadians(270)) //13 // push
 
                 //PART 3: pick up 2nd spec
                 .splineToConstantHeading(new Vector2d(48, -60), Math.toRadians(180)) //14 // quarter circle 1
-                .splineToConstantHeading(new Vector2d(39, -67), Math.toRadians(270)); //15 // quarter circle 2
+                .splineToConstantHeading(new Vector2d(38, -67), Math.toRadians(270)); //15 // quarter circle 2
+                */
+
 
 
         TrajectoryActionBuilder score3 = drive.actionBuilder(sub)
@@ -252,7 +269,17 @@ public class fourSpeciTwo extends LinearOpMode{
 
         Actions.runBlocking(
                 new SequentialAction(
-                        push3noHeadingKISS.build()
+                        toSub.build()
+                        /*new ParallelAction(
+                                lift.highLift(),
+                                toSub.build()
+                        ),
+                        new ParallelAction(
+                                lift.liftDown(),
+                                back.build()
+                        ),
+
+                        push3noHeadingKISS.build()*/
 
                 )
 
