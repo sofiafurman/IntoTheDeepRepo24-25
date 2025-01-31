@@ -298,9 +298,9 @@ public class threeSpeci extends LinearOpMode{
                 // GUI: KISS - 1 spec 3 push NH
 
                 // NOTE:
-                    // this will not actually work since heading stays fixed
-                    // use for major path changes only
-                    // do not use for minor path changes b/c turning may cause... unwanted collisions
+                // this will not actually work since heading stays fixed
+                // use for major path changes only
+                // do not use for minor path changes b/c turning may cause... unwanted collisions
 
                 // PART 1: score 1st spec & prepare
                 //.splineToConstantHeading(new Vector2d(0, -41), Math.toRadians(90)) //2 // 1 spec put this back in
@@ -354,9 +354,9 @@ public class threeSpeci extends LinearOpMode{
                 .strafeToConstantHeading(new Vector2d(20, -70)) // TODO: change to left. currently 38 maybe 28 instead
                 .strafeToLinearHeading(new Vector2d(-5, -41.5), Math.toRadians(270));*/
         TrajectoryActionBuilder done = drive.actionBuilder(finale)
-            .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0))
-            .strafeToConstantHeading(new Vector2d(20, -70))//, new TranslationalVelConstraint(10.0)) // TODO: change to left. currently 38 maybe 28 instead
-            .strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270));//, new TranslationalVelConstraint(10.0));
+                .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0))
+                .strafeToConstantHeading(new Vector2d(20, -70))//, new TranslationalVelConstraint(10.0)) // TODO: change to left. currently 38 maybe 28 instead
+                .strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270));//, new TranslationalVelConstraint(10.0));
 
 
 

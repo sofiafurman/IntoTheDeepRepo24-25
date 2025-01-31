@@ -296,7 +296,7 @@ public class threeSpeciModified extends LinearOpMode{
 
         TrajectoryActionBuilder push3 = drive.actionBuilder(backingPose)
                 // PART 1: score 1st spec & prepare
-                .splineToLinearHeading(new Pose2d(30, -40, Math.toRadians(90)), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(30, -40, Math.toRadians(90)), Math.toRadians(90))
                 .splineToConstantHeading(new Vector2d(30, -26), Math.toRadians(90))
                 //PART 2a: 1st push
                 .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(270)) //6 // position
@@ -308,8 +308,8 @@ public class threeSpeciModified extends LinearOpMode{
                 //PART 3: pick up specimen
                 .splineToConstantHeading(new Vector2d(43, -65), Math.toRadians(180)) //14 // quarter circle 1
                 .splineToConstantHeading(new Vector2d(38, -63), Math.toRadians(270)) //15 // quarter circle 2
-                .strafeToConstantHeading(new Vector2d(32, -73.5), new TranslationalVelConstraint(10.0))
-                .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0));
+                .splineToConstantHeading(new Vector2d(32, -73.5), Math.toRadians(90), new TranslationalVelConstraint(5.0))
+                .splineToConstantHeading(new Vector2d(32, -71) , Math.toRadians(90), new TranslationalVelConstraint(5.0));
 
 
 
