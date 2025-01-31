@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
@@ -27,7 +28,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
-public class fourSpeciTwo extends LinearOpMode{
+public class threeSpeci extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -80,6 +81,36 @@ public class fourSpeciTwo extends LinearOpMode{
         public Action lowLift(){
             return new LowLift();
         }
+        public class FinalLift implements Action{
+            //checks if lift motor has been powered on
+            private boolean initialized = false;
+            //actions formatted via telemetry packets as below
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                //powers on motor if not on
+                if (!initialized){
+                    lift.setPower(1); //og 1
+                    initialized = true;
+                }
+                //checks lift's current position
+                double pos = lift.getCurrentPosition();
+                packet.put("liftPos", pos);
+                if (pos < 2850) {
+                    //true causes the action to return
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    lift.setTargetPosition(2850);
+                    return true;
+                } else {
+                    //false stops action rerun
+                    lift.setPower(0);
+                    return false;
+                }
+            }
+        }
+
+        public Action finalLift(){
+            return new FinalLift();
+        }
 
 
         public class HighLift implements Action{
@@ -96,10 +127,10 @@ public class fourSpeciTwo extends LinearOpMode{
                 //checks lift's current position
                 double pos = lift.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos < 2750) {
+                if (pos < 2800) {
                     //true causes the action to return
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    lift.setTargetPosition(2750);
+                    lift.setTargetPosition(2800);
                     return true;
                 } else {
                     //false stops action rerun
@@ -254,6 +285,7 @@ public class fourSpeciTwo extends LinearOpMode{
         Pose2d sub = new Pose2d(0, -41, Math.toRadians(270));
         Pose2d endZone = new Pose2d(32, -73.5, Math.toRadians(90));
         Pose2d sub2 = new Pose2d(-5, -41.5, Math.toRadians(270));
+        Pose2d finale = new Pose2d(32, -73.5, Math.toRadians(90));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
@@ -280,18 +312,18 @@ public class fourSpeciTwo extends LinearOpMode{
                 .splineToConstantHeading(new Vector2d(30, -26), Math.toRadians(90))
 
                 //PART 2a: 1st push
-                .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(270)) //6 // position
+                .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(270), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-10,10)) //6 // position
                 .splineToConstantHeading(new Vector2d(39, -57), Math.toRadians(90)) //7 // push // y originally -67
                 .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(90)) //8 // back to samp area
 
                 //PART 2b: 2nd push
-                .splineToConstantHeading(new Vector2d(48, -26), Math.toRadians(270)) //9 // position
-                .splineToConstantHeading(new Vector2d(48, -57), Math.toRadians(270)) //10 // push
+                .splineToConstantHeading(new Vector2d(50, -26), Math.toRadians(270), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-10,10)) //9 // position
+                .splineToConstantHeading(new Vector2d(50, -57), Math.toRadians(270))//, new TranslationalVelConstraint(30), new ProfileAccelConstraint(-10,10)) //10 // push //TODO: change
 
                 //.splineToConstantHeading(new Vector2d(48, -26), Math.toRadians(90)) //11 // back to samp area
 
                 .splineToConstantHeading(new Vector2d(43, -65), Math.toRadians(180)) //14 // quarter circle 1
-                .splineToConstantHeading(new Vector2d(38, -55), Math.toRadians(270)) //15 // quarter circle 2
+                .splineToConstantHeading(new Vector2d(38, -63), Math.toRadians(270)) //15 // quarter circle 2
                 .strafeToConstantHeading(new Vector2d(32, -73.5), new TranslationalVelConstraint(10.0))
                 .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0));
 
@@ -309,33 +341,22 @@ public class fourSpeciTwo extends LinearOpMode{
 
         TrajectoryActionBuilder score3 = drive.actionBuilder(endZone)
                 //.strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0))
-                .strafeToConstantHeading(new Vector2d(20, -70)) // TODO: change to left. currently 38 maybe 28 instead
-                .strafeToLinearHeading(new Vector2d(-5, -41.5), Math.toRadians(270));
+                .strafeToConstantHeading(new Vector2d(23, -70)) // TODO: change to left. currently 38 maybe 28 instead
+                .strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270));
 
         TrajectoryActionBuilder homeStretch = drive.actionBuilder(sub2)
+                .strafeToLinearHeading(new Vector2d(32, -71), Math.toRadians(90))//, new TranslationalVelConstraint(10.0)) //6 // position
+                .strafeToConstantHeading(new Vector2d(32, -74)); //, new TranslationalVelConstraint(10.0));
+                /*.splineToConstantHeading(new Vector2d(39, -57), Math.toRadians(90))
                 .strafeToConstantHeading(new Vector2d(32, -68), new TranslationalVelConstraint(5.0))
                 .strafeToConstantHeading(new Vector2d(32, -73.5), new TranslationalVelConstraint(10.0))
                 .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0))
                 .strafeToConstantHeading(new Vector2d(20, -70)) // TODO: change to left. currently 38 maybe 28 instead
-                .strafeToLinearHeading(new Vector2d(-5, -41.5), Math.toRadians(270));
-               /* .splineToSplineHeading(new Pose2d(48, -20, Math.toRadians(90)), Math.toRadians(90)) //position by first sample
-
-                .splineToConstantHeading(new Vector2d(52, -24), Math.toRadians(270))
-                .strafeToConstantHeading(new Vector2d(52, -72)) //first sample pushed
-                .strafeToConstantHeading(new Vector2d(52, -20))
-
-                .strafeToConstantHeading(new Vector2d(56, -24))
-                .strafeToConstantHeading(new Vector2d(56, -72)) //second sample pushed
-                .strafeToConstantHeading(new Vector2d(56, -20))
-
-                .splineToConstantHeading(new Vector2d(60, -24), Math.toRadians(270))
-                .strafeToConstantHeading(new Vector2d(60, -72)) //third sample pushed
-
-                .splineToConstantHeading(new Vector2d(49, -60), Math.toRadians(180))
-                .splineToConstantHeading(new Vector2d(38, -72), Math.toRadians(270));*/
-
-
-
+                .strafeToLinearHeading(new Vector2d(-5, -41.5), Math.toRadians(270));*/
+        TrajectoryActionBuilder done = drive.actionBuilder(finale)
+            .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0))
+            .strafeToConstantHeading(new Vector2d(20, -70))//, new TranslationalVelConstraint(10.0)) // TODO: change to left. currently 38 maybe 28 instead
+            .strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270));//, new TranslationalVelConstraint(10.0));
 
 
 
@@ -372,7 +393,14 @@ public class fourSpeciTwo extends LinearOpMode{
                         new ParallelAction(
                                 lift.liftDown(),
                                 homeStretch.build()
-                        )
+                        ),
+                        lift.startHighLift(),
+                        new ParallelAction(
+                                lift.finalLift(),
+                                done.build()
+                        ),
+                        lift.liftDown()
+
 
 
 
