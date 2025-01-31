@@ -290,7 +290,7 @@ public class threeSpeciModified extends LinearOpMode{
         slideVertical lift = new slideVertical(hardwareMap);
 
         TrajectoryActionBuilder toSub = drive.actionBuilder(initPose)
-                .strafeToConstantHeading(new Vector2d(0, -41), new TranslationalVelConstraint(30.0)); //28 for 2, 1  for 14?
+                .strafeToConstantHeading(new Vector2d(0, -41)); //28 for 2, 1  for 14?
         TrajectoryActionBuilder back = drive.actionBuilder(sub)
                 .strafeToConstantHeading(new Vector2d(0, -50)); //28 for 2, 1  for 14?
 
@@ -300,14 +300,14 @@ public class threeSpeciModified extends LinearOpMode{
                 .splineToConstantHeading(new Vector2d(30, -26), Math.toRadians(90))
                 //PART 2a: 1st push
                 .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(270)) //6 // position
-                .splineToConstantHeading(new Vector2d(39, -57), Math.toRadians(90)) //7 // push
-                .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(90)) //8 // back to samp area
+                .splineToConstantHeading(new Vector2d(39, -57), Math.toRadians(90), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-1, 1)) //7 // push
+                .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(90), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-1, 1)) //8 // back to samp area
                 //PART 2b: 2nd push
                 .splineToConstantHeading(new Vector2d(48, -26), Math.toRadians(270)) //9 // position
                 .splineToConstantHeading(new Vector2d(48, -57), Math.toRadians(270)) //10 // push
                 //PART 3: pick up specimen
                 .splineToConstantHeading(new Vector2d(43, -65), Math.toRadians(180)) //14 // quarter circle 1
-                .splineToConstantHeading(new Vector2d(38, -63), Math.toRadians(270)) //15 // quarter circle 2
+                .splineToConstantHeading(new Vector2d(38, -60), Math.toRadians(270)) //15 // quarter circle 2
                 .splineToConstantHeading(new Vector2d(32, -73.5), Math.toRadians(90), new TranslationalVelConstraint(5.0))
                 .splineToConstantHeading(new Vector2d(32, -71) , Math.toRadians(90), new TranslationalVelConstraint(5.0));
 
@@ -316,20 +316,20 @@ public class threeSpeciModified extends LinearOpMode{
 
         TrajectoryActionBuilder score3 = drive.actionBuilder(endZone)
 
-                .splineToSplineHeading(new Pose2d(23, -60, Math.toRadians(180)), Math.toRadians(90)) //TODO: fix
-                .splineToSplineHeading(new Pose2d(-5, -42, Math.toRadians(90)), Math.toRadians(270));
+                .splineToSplineHeading(new Pose2d(-10, -60, Math.toRadians(180)), Math.toRadians(90)) //TODO: fix
+                .splineToSplineHeading(new Pose2d(-5, -42, Math.toRadians(270)), Math.toRadians(270));
 
         TrajectoryActionBuilder homeStretch = drive.actionBuilder(sub2)
-                .splineToSplineHeading(new Pose2d(23, -60, Math.toRadians(180)), Math.toRadians(270), new TranslationalVelConstraint(10)) //TODO: fix
-                .splineToSplineHeading(new Pose2d(32, -71, Math.toRadians(270)) , Math.toRadians(90), new TranslationalVelConstraint(10.0));
+                //.splineToSplineHeading(new Pose2d(0, 60, Math.toRadians(180)), Math.toRadians(270), new TranslationalVelConstraint(10)) //TODO: fix
+                //.splineToSplineHeading(new Pose2d(32, -71, Math.toRadians(90)) , Math.toRadians(90), new TranslationalVelConstraint(10.0));
 
-                //.strafeToLinearHeading(new Vector2d(32, -71), Math.toRadians(90))
-                //.strafeToConstantHeading(new Vector2d(32, -74));
+                .strafeToLinearHeading(new Vector2d(32, -67), Math.toRadians(90))
+                .strafeToConstantHeading(new Vector2d(32, -74), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder done = drive.actionBuilder(finale)
-                .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0))
-                .strafeToConstantHeading(new Vector2d(20, -70), new TranslationalVelConstraint(5.0))
-                .strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270), new TranslationalVelConstraint(5.0));
+                .strafeToConstantHeading(new Vector2d(32, -71))
+                .strafeToConstantHeading(new Vector2d(20, -71))
+                .strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270));
 
 
 
@@ -359,7 +359,7 @@ public class threeSpeciModified extends LinearOpMode{
                         lift.startHighLift(),
                         //score3.build()
                         new ParallelAction(
-                                //lift.highLift(),
+                                lift.highLift(),
                                 score3.build()
                         ),
                         lift.startLiftDown(),
