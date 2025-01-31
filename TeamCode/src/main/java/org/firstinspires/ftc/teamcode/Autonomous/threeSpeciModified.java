@@ -285,7 +285,7 @@ public class threeSpeciModified extends LinearOpMode{
         Pose2d sub = new Pose2d(0, -41, Math.toRadians(270));
         Pose2d endZone = new Pose2d(32, -73.5, Math.toRadians(90));
         Pose2d sub2 = new Pose2d(-5, -41.5, Math.toRadians(270));
-        Pose2d finale = new Pose2d(32, -73.5, Math.toRadians(90));
+        Pose2d finale = new Pose2d(32, -74, Math.toRadians(90));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
@@ -303,8 +303,8 @@ public class threeSpeciModified extends LinearOpMode{
                 .splineToConstantHeading(new Vector2d(39, -57), Math.toRadians(90)) //7 // push
                 .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(90)) //8 // back to samp area
                 //PART 2b: 2nd push
-                .splineToConstantHeading(new Vector2d(50, -26), Math.toRadians(270)) //9 // position
-                .splineToConstantHeading(new Vector2d(50, -57), Math.toRadians(270)) //10 // push
+                .splineToConstantHeading(new Vector2d(48, -26), Math.toRadians(270)) //9 // position
+                .splineToConstantHeading(new Vector2d(48, -57), Math.toRadians(270)) //10 // push
                 //PART 3: pick up specimen
                 .splineToConstantHeading(new Vector2d(43, -65), Math.toRadians(180)) //14 // quarter circle 1
                 .splineToConstantHeading(new Vector2d(38, -63), Math.toRadians(270)) //15 // quarter circle 2
@@ -316,17 +316,20 @@ public class threeSpeciModified extends LinearOpMode{
 
         TrajectoryActionBuilder score3 = drive.actionBuilder(endZone)
 
-                .strafeToConstantHeading(new Vector2d(23, -70))
-                .strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270));
+                .splineToSplineHeading(new Pose2d(23, -60, Math.toRadians(180)), Math.toRadians(90)) //TODO: fix
+                .splineToSplineHeading(new Pose2d(-5, -42, Math.toRadians(90)), Math.toRadians(270));
 
         TrajectoryActionBuilder homeStretch = drive.actionBuilder(sub2)
-                .strafeToLinearHeading(new Vector2d(32, -71), Math.toRadians(90))
-                .strafeToConstantHeading(new Vector2d(32, -74));
+                .splineToSplineHeading(new Pose2d(23, -60, Math.toRadians(180)), Math.toRadians(270), new TranslationalVelConstraint(10)) //TODO: fix
+                .splineToSplineHeading(new Pose2d(32, -71, Math.toRadians(270)) , Math.toRadians(90), new TranslationalVelConstraint(10.0));
+
+                //.strafeToLinearHeading(new Vector2d(32, -71), Math.toRadians(90))
+                //.strafeToConstantHeading(new Vector2d(32, -74));
 
         TrajectoryActionBuilder done = drive.actionBuilder(finale)
                 .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0))
-                .strafeToConstantHeading(new Vector2d(20, -70))
-                .strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270));
+                .strafeToConstantHeading(new Vector2d(20, -70), new TranslationalVelConstraint(5.0))
+                .strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270), new TranslationalVelConstraint(5.0));
 
 
 
@@ -356,7 +359,7 @@ public class threeSpeciModified extends LinearOpMode{
                         lift.startHighLift(),
                         //score3.build()
                         new ParallelAction(
-                                lift.highLift(),
+                                //lift.highLift(),
                                 score3.build()
                         ),
                         lift.startLiftDown(),
