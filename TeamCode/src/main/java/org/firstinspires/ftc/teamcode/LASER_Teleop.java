@@ -34,12 +34,12 @@ public class LASER_Teleop extends LinearOpMode {
         int invDir = 1;    // used to activate inverted direction
         boolean keyA = false, keyB = false;    // used for toggle keys
 
-        double C_LATERAL, C_AXIAL, C_YAW, C_HORIZ_SLIDE, C_HORIZ_SLIDE_RESET,
-               C_BPUSHSERVO_IN, C_BPUSHSERVO_OUT;
+        double C_LATERAL, C_AXIAL, C_YAW, C_HORIZ_SLIDE, C_HORIZ_SLIDE_RESET;
         boolean C_HALF_SPEED, C_INV_DIR, C_OUT_SERVO,
                 C_IN_SERVO_TRANSF, C_INTAKE, C_SPIT,
                 C_VERT_SLIDE_UP = false, PREV_C_VERT_SLIDE_UP = false,
-                C_VERT_SLIDE_DWN = false, PREV_C_VERT_SLIDE_DWN = false;
+                C_VERT_SLIDE_DWN = false, PREV_C_VERT_SLIDE_DWN = false,
+                C_BPUSHSERVO, C_BPUSHSERVO_LOAD;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -50,7 +50,7 @@ public class LASER_Teleop extends LinearOpMode {
 
         lights = hardwareMap.get(Servo.class, "light_strip");
         intakeServo    = hardwareMap.get(Servo.class, "intake_servo");
-        //blockPushServo = hardwareMap.get(Servo.class, "block_push_servo");
+        blockPushServo = hardwareMap.get(Servo.class, "block_push_servo");
         double bPushServoSet;
         outtakeServo   = hardwareMap.get(Servo.class, "outtake_servo");
         final double OUT_SERVO_DOWN_POS = 0.7;
@@ -128,8 +128,8 @@ public class LASER_Teleop extends LinearOpMode {
             C_YAW                 = gamepad1.right_stick_x;
             C_HALF_SPEED          = gamepad1.a;
             C_INV_DIR             = gamepad1.b;
-            C_BPUSHSERVO_OUT      = gamepad1.right_trigger;
-            C_BPUSHSERVO_IN       = gamepad1.left_trigger;
+            C_BPUSHSERVO          = gamepad1.right_bumper;
+            C_BPUSHSERVO_LOAD     = gamepad1.left_bumper;
             PREV_C_VERT_SLIDE_UP  = C_VERT_SLIDE_UP;
             C_VERT_SLIDE_UP       = gamepad2.right_bumper;
             PREV_C_VERT_SLIDE_DWN = C_VERT_SLIDE_DWN;
@@ -297,15 +297,14 @@ public class LASER_Teleop extends LinearOpMode {
                 intakeServo.setPosition(0.5);
             }
 
-            /*
             // BLOCK PUSH SERVO CONTROLS
-            C_BPUSHSERVO_IN /= 2;
-            C_BPUSHSERVO_IN += 0.5;
-            C_BPUSHSERVO_OUT /= 2;
-            C_BPUSHSERVO_OUT += 0.5;
-            bPushServoSet = C_BPUSHSERVO_IN - C_BPUSHSERVO_OUT;
-            blockPushServo.setPosition(bPushServoSet);
-            */
+            if (C_BPUSHSERVO) {
+                blockPushServo.setPosition(0.8);
+            } else if (C_BPUSHSERVO_LOAD) {
+                blockPushServo.setPosition(1.0);
+            } else {
+                blockPushServo.setPosition(0.0);
+            }
 
             // INTAKE WRIST CONTROLS
             if (C_INTAKE || C_SPIT) {
