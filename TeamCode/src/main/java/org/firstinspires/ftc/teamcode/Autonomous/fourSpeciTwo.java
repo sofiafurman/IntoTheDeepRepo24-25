@@ -23,7 +23,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 //this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
 @Config
-@Autonomous(name = "4speci attempt 2", group = "Autonomous")
+@Autonomous(name = "3 specimen", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
@@ -157,10 +157,10 @@ public class fourSpeciTwo extends LinearOpMode{
                 //checks lift's current position
                 double pos = lift.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos > 1500) {
+                if (pos > 1200) {
                     //true causes the action to return
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    lift.setTargetPosition(1500);
+                    lift.setTargetPosition(1200);
                     return true;
                 } else {
                     //false stops action rerun
@@ -191,7 +191,7 @@ public class fourSpeciTwo extends LinearOpMode{
                 //checks lift's current position
                 double pos = lift.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos > 50) {
+                if (pos > 0) { //50
                     //true causes the action to return
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(0);
@@ -252,12 +252,13 @@ public class fourSpeciTwo extends LinearOpMode{
         Pose2d backingPose = new Pose2d(0, -50, Math.toRadians(270));
         Pose2d initPose = new Pose2d(0, -72, Math.toRadians(270));
         Pose2d sub = new Pose2d(0, -41, Math.toRadians(270));
-        Pose2d endZone = new Pose2d(38, -75, Math.toRadians(90));
+        Pose2d endZone = new Pose2d(32, -73.5, Math.toRadians(90));
+        Pose2d sub2 = new Pose2d(-5, -41.5, Math.toRadians(270));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
         TrajectoryActionBuilder toSub = drive.actionBuilder(initPose)
-                .strafeToConstantHeading(new Vector2d(0, -41.5)); //28 for 2, 1  for 14?
+                .strafeToConstantHeading(new Vector2d(0, -41), new TranslationalVelConstraint(30.0)); //28 for 2, 1  for 14?
         TrajectoryActionBuilder back = drive.actionBuilder(sub)
                 .strafeToConstantHeading(new Vector2d(0, -50)); //28 for 2, 1  for 14?
 
@@ -280,18 +281,19 @@ public class fourSpeciTwo extends LinearOpMode{
 
                 //PART 2a: 1st push
                 .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(270)) //6 // position
-                .splineToConstantHeading(new Vector2d(39, -55), Math.toRadians(90)) //7 // push // y originally -67
+                .splineToConstantHeading(new Vector2d(39, -57), Math.toRadians(90)) //7 // push // y originally -67
                 .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(90)) //8 // back to samp area
 
                 //PART 2b: 2nd push
                 .splineToConstantHeading(new Vector2d(48, -26), Math.toRadians(270)) //9 // position
-                .splineToConstantHeading(new Vector2d(48, -55), Math.toRadians(270)) //10 // push
+                .splineToConstantHeading(new Vector2d(48, -57), Math.toRadians(270)) //10 // push
 
                 //.splineToConstantHeading(new Vector2d(48, -26), Math.toRadians(90)) //11 // back to samp area
 
-                .splineToConstantHeading(new Vector2d(43, -60), Math.toRadians(180)) //14 // quarter circle 1
-                .splineToConstantHeading(new Vector2d(38, -65), Math.toRadians(270)) //15 // quarter circle 2
-                .strafeToConstantHeading(new Vector2d(32, -73.5), new TranslationalVelConstraint(10.0));
+                .splineToConstantHeading(new Vector2d(43, -65), Math.toRadians(180)) //14 // quarter circle 1
+                .splineToConstantHeading(new Vector2d(38, -55), Math.toRadians(270)) //15 // quarter circle 2
+                .strafeToConstantHeading(new Vector2d(32, -73.5), new TranslationalVelConstraint(10.0))
+                .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0));
 
                 /*
                 //PART 2c: 3rd push
@@ -306,8 +308,16 @@ public class fourSpeciTwo extends LinearOpMode{
 
 
         TrajectoryActionBuilder score3 = drive.actionBuilder(endZone)
-                .strafeToConstantHeading(new Vector2d(38, -70)) // TODO: change to left. currently 38 maybe 28 instead
-                .strafeToLinearHeading(new Vector2d(3, -42), Math.toRadians(270));
+                //.strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0))
+                .strafeToConstantHeading(new Vector2d(20, -70)) // TODO: change to left. currently 38 maybe 28 instead
+                .strafeToLinearHeading(new Vector2d(-5, -41.5), Math.toRadians(270));
+
+        TrajectoryActionBuilder homeStretch = drive.actionBuilder(sub2)
+                .strafeToConstantHeading(new Vector2d(32, -68), new TranslationalVelConstraint(5.0))
+                .strafeToConstantHeading(new Vector2d(32, -73.5), new TranslationalVelConstraint(10.0))
+                .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(5.0))
+                .strafeToConstantHeading(new Vector2d(20, -70)) // TODO: change to left. currently 38 maybe 28 instead
+                .strafeToLinearHeading(new Vector2d(-5, -41.5), Math.toRadians(270));
                /* .splineToSplineHeading(new Pose2d(48, -20, Math.toRadians(90)), Math.toRadians(90)) //position by first sample
 
                 .splineToConstantHeading(new Vector2d(52, -24), Math.toRadians(270))
@@ -333,6 +343,8 @@ public class fourSpeciTwo extends LinearOpMode{
         // actions that need to happen on init; for instance, a claw tightening.
 
 
+
+
         waitForStart();
 
         if (isStopRequested()) return;
@@ -355,6 +367,11 @@ public class fourSpeciTwo extends LinearOpMode{
                         new ParallelAction(
                                 lift.highLift(),
                                 score3.build()
+                        ),
+                        lift.startLiftDown(),
+                        new ParallelAction(
+                                lift.liftDown(),
+                                homeStretch.build()
                         )
 
 
