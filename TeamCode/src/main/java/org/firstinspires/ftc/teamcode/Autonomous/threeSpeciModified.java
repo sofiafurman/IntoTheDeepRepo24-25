@@ -24,7 +24,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 //this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
 @Config
-@Autonomous(name = "DO NOT USE!!!!!!!!!!!!!! 3 specimen", group = "Autonomous")
+@Autonomous(name = "3 Specimen 30", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
@@ -302,15 +302,15 @@ public class threeSpeciModified extends LinearOpMode{
                 .splineToConstantHeading(new Vector2d(30, -26), Math.toRadians(90))
                 //PART 2a: 1st push
                 .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(270)) //6 // position
-                .splineToConstantHeading(new Vector2d(39, -57), Math.toRadians(90), new TranslationalVelConstraint(25), new ProfileAccelConstraint(-10,10)) //7 // push
-                .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(90), new TranslationalVelConstraint(25)) //8 // back to samp area
+                .splineToConstantHeading(new Vector2d(39, -57), Math.toRadians(90), new TranslationalVelConstraint(35), new ProfileAccelConstraint(-10,10)) //7 // push
+                .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(90), new TranslationalVelConstraint(35)) //8 // back to samp area
                 //PART 2b: 2nd push
                 .splineToConstantHeading(new Vector2d(49.8, -26), Math.toRadians(270), new TranslationalVelConstraint(20)) //9 // position
                 .splineToConstantHeading(new Vector2d(49.8, -57), Math.toRadians(270)) //10 // push
                 //PART 3: pick up specimen
                 .splineToConstantHeading(new Vector2d(43, -65), Math.toRadians(180)) //14 // quarter circle 1
-                .splineToConstantHeading(new Vector2d(38, -57), Math.toRadians(270), new TranslationalVelConstraint(5)) //15 // quarter circle 2
-                .splineToConstantHeading(new Vector2d(32, -73.5), Math.toRadians(90), new TranslationalVelConstraint(5))
+                .splineToConstantHeading(new Vector2d(38, -55), Math.toRadians(270), new TranslationalVelConstraint(30)) //15 // quarter circle 2
+                .splineToConstantHeading(new Vector2d(32, -74), Math.toRadians(90), new TranslationalVelConstraint(5))
                 .splineToConstantHeading(new Vector2d(32, -71) , Math.toRadians(90), new TranslationalVelConstraint(10.0));
 
 
@@ -330,8 +330,8 @@ public class threeSpeciModified extends LinearOpMode{
                 .strafeToLinearHeading(new Vector2d(32, -69), Math.toRadians(90))
                 //.strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270));
                 //.strafeToLinearHeading(new Vector2d(32, -67), Math.toRadians(90))
-                .strafeToConstantHeading(new Vector2d(32, -74), new TranslationalVelConstraint(5))
-                .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(32, -74), new TranslationalVelConstraint(10))
+                .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(15));
 
         TrajectoryActionBuilder done = drive.actionBuilder(finale)
                 .strafeToConstantHeading(new Vector2d(32, -71))
