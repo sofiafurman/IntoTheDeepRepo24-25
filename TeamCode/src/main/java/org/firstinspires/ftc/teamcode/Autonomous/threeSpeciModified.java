@@ -49,6 +49,8 @@ public class threeSpeciModified extends LinearOpMode{
             lift = hardwareMap.get(DcMotorEx.class, "vertical_slide"); //config?
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             lift.setDirection(DcMotor.Direction.FORWARD);
+            lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         public class LowLift implements Action{
@@ -278,7 +280,6 @@ public class threeSpeciModified extends LinearOpMode{
     //begin code
     @Override
     public void runOpMode() throws InterruptedException {
-
         //Pose2d initPose = new Pose2d(0, -72, Math.toRadians(270)); put this back in
         Pose2d backingPose = new Pose2d(0, -50, Math.toRadians(270));
         Pose2d initPose = new Pose2d(0, -72, Math.toRadians(270));
@@ -304,11 +305,11 @@ public class threeSpeciModified extends LinearOpMode{
                 .splineToConstantHeading(new Vector2d(39, -57), Math.toRadians(90), new TranslationalVelConstraint(25), new ProfileAccelConstraint(-10,10)) //7 // push
                 .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(90), new TranslationalVelConstraint(25)) //8 // back to samp area
                 //PART 2b: 2nd push
-                .splineToConstantHeading(new Vector2d(49.5, -26), Math.toRadians(270), new TranslationalVelConstraint(20)) //9 // position
-                .splineToConstantHeading(new Vector2d(49.5, -57), Math.toRadians(270)) //10 // push
+                .splineToConstantHeading(new Vector2d(49.8, -26), Math.toRadians(270), new TranslationalVelConstraint(20)) //9 // position
+                .splineToConstantHeading(new Vector2d(49.8, -57), Math.toRadians(270)) //10 // push
                 //PART 3: pick up specimen
                 .splineToConstantHeading(new Vector2d(43, -65), Math.toRadians(180)) //14 // quarter circle 1
-                .splineToConstantHeading(new Vector2d(38, -60), Math.toRadians(270)) //15 // quarter circle 2
+                .splineToConstantHeading(new Vector2d(38, -57), Math.toRadians(270), new TranslationalVelConstraint(5)) //15 // quarter circle 2
                 .splineToConstantHeading(new Vector2d(32, -73.5), Math.toRadians(90), new TranslationalVelConstraint(5))
                 .splineToConstantHeading(new Vector2d(32, -71) , Math.toRadians(90), new TranslationalVelConstraint(10.0));
 
