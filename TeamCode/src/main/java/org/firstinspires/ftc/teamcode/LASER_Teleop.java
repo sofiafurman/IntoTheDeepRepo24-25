@@ -39,7 +39,7 @@ public class LASER_Teleop extends LinearOpMode {
                 C_IN_SERVO_TRANSF, C_INTAKE, C_SPIT,
                 C_VERT_SLIDE_UP = false, PREV_C_VERT_SLIDE_UP = false,
                 C_VERT_SLIDE_DWN = false, PREV_C_VERT_SLIDE_DWN = false,
-                C_BPUSHSERVO, C_BPUSHSERVO_LOAD;
+                C_BPUSHSERVO, C_BPUSHSERVO_LOAD, C_VERT_SLIDE_RESET;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -134,6 +134,7 @@ public class LASER_Teleop extends LinearOpMode {
             C_VERT_SLIDE_UP       = gamepad2.right_bumper;
             PREV_C_VERT_SLIDE_DWN = C_VERT_SLIDE_DWN;
             C_VERT_SLIDE_DWN      = gamepad2.left_bumper;
+            C_VERT_SLIDE_RESET    = gamepad2.dpad_down;
             C_HORIZ_SLIDE         = gamepad2.left_stick_y;
             C_HORIZ_SLIDE_RESET   = gamepad2.right_trigger + gamepad2.left_trigger;
             C_OUT_SERVO           = gamepad2.b;
@@ -238,6 +239,13 @@ public class LASER_Teleop extends LinearOpMode {
                     slideVertical.setPower(0.7);
                     slideVertical.setTargetPosition(5024);
                     break;
+            }
+            while (C_VERT_SLIDE_RESET && opModeIsActive()) {
+                slideVertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                slideVertical.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                slideVertical.setPower(0.3);
+                sleep(500);
+                C_VERT_SLIDE_RESET = gamepad2.dpad_down;
             }
 
             // HORIZONTAL SLIDE CONTROLS
