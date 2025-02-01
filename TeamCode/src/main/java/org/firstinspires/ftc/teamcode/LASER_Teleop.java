@@ -243,10 +243,14 @@ public class LASER_Teleop extends LinearOpMode {
             while (C_VERT_SLIDE_RESET && opModeIsActive()) {
                 slideVertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 slideVertical.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                slideVertical.setPower(0.3);
+                slideVertical.setPower(-0.5);
+                wristMotor.setPower(0.2);
+                wristMotor.setTargetPosition(130);
+                vSlideMotorState = 0;
                 sleep(500);
                 C_VERT_SLIDE_RESET = gamepad2.dpad_down;
             }
+            slideVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // HORIZONTAL SLIDE CONTROLS
             /*
@@ -270,7 +274,7 @@ public class LASER_Teleop extends LinearOpMode {
             while (C_HORIZ_SLIDE_RESET >= 1.0 && opModeIsActive()) {
                 slideHorizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 slideHorizontal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                slideHorizontal.setPower(0.3);
+                slideHorizontal.setPower(0.5);
                 sleep(500);
                 C_HORIZ_SLIDE_RESET = gamepad2.right_trigger + gamepad2.left_trigger;
             }
