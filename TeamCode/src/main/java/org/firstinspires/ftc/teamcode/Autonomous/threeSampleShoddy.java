@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 import androidx.annotation.NonNull;
+import java.util.concurrent.*;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -13,6 +14,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
@@ -24,11 +26,11 @@ import java.util.concurrent.ScheduledExecutorService;
 
 //this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
 @Config
-@Autonomous(name = "4 Sample 32", group = "Autonomous")
+@Autonomous(name = "shoddy", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
-public class threeSampleYellow extends LinearOpMode{
+public class threeSampleShoddy extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -285,47 +287,48 @@ public class threeSampleYellow extends LinearOpMode{
                 }
             }
         }
-            public Action hSlideOut(){
-                return new slideHorizontal.HSlideOut();
-            }
+        public Action hSlideOut(){
+            return new HSlideOut();
+        }
 
-            public class HSlideIn implements Action {
-                //checks if lift motor has been powered on
-                private boolean initialized = false;
+        public class HSlideIn implements Action {
+            //checks if lift motor has been powered on
+            private boolean initialized = false;
 
-                //actions formatted via telemetry packets as below
-                @Override
-                public boolean run(@NonNull TelemetryPacket packet) {
-                    //powers on motor if not on
-                    if (!initialized) {
-                        extend.setPower(1);
-                        initialized = true;
-                    }
-                    //checks lift's current position
-                    double pos = extend.getCurrentPosition();
-                    packet.put("extendPos", pos);
-                    if (pos > 0) { //50
-                        //true causes the action to return
-                        extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        extend.setTargetPosition(0);
-                        return true;
-                    } else {
-                        //false stops action rerun
-                        //TODO: turn off motor when done
-                        extend.setPower(0);
-                        return false;
-                    }
+            //actions formatted via telemetry packets as below
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                //powers on motor if not on
+                if (!initialized) {
+                    extend.setPower(1);
+                    initialized = true;
                 }
-
-                public Action hSlideIn() {
-                    return new slideHorizontal.HSlideIn();
+                //checks lift's current position
+                double pos = extend.getCurrentPosition();
+                packet.put("extendPos", pos);
+                if (pos > 0) { //50
+                    //true causes the action to return
+                    extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    extend.setTargetPosition(0);
+                    return true;
+                } else {
+                    //false stops action rerun
+                    //TODO: turn off motor when done
+                    extend.setPower(0);
+                    return false;
                 }
             }
+
+            public Action hSlideIn() {
+                return new HSlideIn();
+            }
+        }
 
 
     }
 
     public class wristDrive{
+
         private DcMotorEx wrist;
 
         public wristDrive(HardwareMap hardwareMap) {
@@ -364,7 +367,7 @@ public class threeSampleYellow extends LinearOpMode{
             }
 
             public Action intakeAvoid() {
-                return new wristDrive.IntakeAvoid();
+                return new IntakeAvoid();
             }
         }
 
@@ -397,7 +400,7 @@ public class threeSampleYellow extends LinearOpMode{
             }
 
             public Action intakeTransfer() {
-                return new wristDrive.IntakeTransfer();
+                return new IntakeTransfer();
             }
         }
 
@@ -430,7 +433,7 @@ public class threeSampleYellow extends LinearOpMode{
             }
 
             public Action intakeIdle() {
-                return new wristDrive.IntakeIdle();
+                return new IntakeIdle();
             }
         }
 
@@ -442,7 +445,7 @@ public class threeSampleYellow extends LinearOpMode{
 
         public intakeServo(HardwareMap hardwaremap){
             spin = hardwareMap.get(Servo.class, "intake_servo"); //NOT SURE WHAT IT IS IN CONFIG
-
+            spin.setPosition(0.5);
         }
         public class IntakeServoStop implements Action { // this is also intake completely in
             //checks if lift motor has been powered on
@@ -459,22 +462,18 @@ public class threeSampleYellow extends LinearOpMode{
                 //checks lift's current position
                 double pos = spin.getPosition();
                 packet.put("liftPos", pos);
-                if (pos != 0.5) { //50
-                    //true causes the action to return
-                    spin.setPosition(0.5);
-
-                    return true;
-                } else {
-                    //false stops action rerun
-                    //TODO: turn off motor when done
-                    spin.setPosition(0.5);
-                    return false;
+                spin.setPosition(1);
+                try {
+                    threeSampleShoddy.intakeServo.this.wait(3000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
+                return true;
             }
 
         }
         public Action intakeServoStop() {
-            return new intakeServo.IntakeServoStop();
+            return new IntakeServoStop();
         }
 
 
@@ -508,7 +507,7 @@ public class threeSampleYellow extends LinearOpMode{
 
         }
         public Action intakeServoPickUp() {
-            return new intakeServo.IntakeServoPickUp();
+            return new IntakeServoPickUp();
         }
 
     }
@@ -542,6 +541,10 @@ public class threeSampleYellow extends LinearOpMode{
         Pose2d finale = new Pose2d(32, -74, Math.toRadians(90));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initPose);
         slideVertical lift = new slideVertical(hardwareMap);
+        slideHorizontal extend = new slideHorizontal(hardwareMap);
+        wristDrive wrist = new wristDrive(hardwareMap);
+        intakeServo spin = new intakeServo(hardwareMap);
+        outtakeServo rotateOut = new outtakeServo(hardwareMap);
 
         TrajectoryActionBuilder toSub = drive.actionBuilder(initPose)
                 .strafeToConstantHeading(new Vector2d(0, -41), new TranslationalVelConstraint(20)); //28 for 2, 1  for 14?
@@ -604,13 +607,11 @@ public class threeSampleYellow extends LinearOpMode{
         if (isStopRequested()) return;
 
         Actions.runBlocking(
-                new SequentialAction(
-
-
-
-
-                )
-
+            new SequentialAction(
+                 lift.highLift(),
+                 extend.hSlideOut(),
+                 wrist.IntakeTransfer()
+            )
         );
 
 

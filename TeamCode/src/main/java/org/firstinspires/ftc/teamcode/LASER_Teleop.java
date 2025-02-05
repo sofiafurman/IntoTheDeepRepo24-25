@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Autonomous.threeSampleShoddy;
+
 @TeleOp(name="LASER Main Teleop", group="Linear OpMode")
 //@Disabled
 public class LASER_Teleop extends LinearOpMode {
@@ -141,6 +143,12 @@ public class LASER_Teleop extends LinearOpMode {
             C_IN_SERVO_TRANSF     = gamepad2.y;
             C_SPIT                = gamepad2.x;
             C_INTAKE              = gamepad2.a;
+
+
+
+
+
+
 
             double max;
 
