@@ -279,11 +279,11 @@ public class LASER_Teleop extends LinearOpMode {
                 C_HORIZ_SLIDE_RESET = gamepad2.right_trigger + gamepad2.left_trigger;
             }
             if (slideHorizontal.getCurrentPosition() > -200) {
-                lights.setPosition(0.695);
+                lights.setPosition(0.695); //yellow
             } else if (slideHorizontal.getCurrentPosition() < -1500) {
-                lights.setPosition(0.335);
+                lights.setPosition(0.335); //red fire
             } else {
-                lights.setPosition(0.27);
+                lights.setPosition(0.27); //blue ray
             }
 
             // OUTTAKE SERVO CONTROLS
@@ -302,11 +302,11 @@ public class LASER_Teleop extends LinearOpMode {
 
             // INTAKE SERVO / TRANSFER CONTROLS
             if (C_IN_SERVO_TRANSF && !C_INTAKE) {
-                intakeServo.setPosition(1.0);
+                intakeServo.setPosition(1.0); //pick up or transfer
             } else if (C_SPIT) {
-                intakeServo.setPosition(0.0);
+                intakeServo.setPosition(0.0); //spit out
             } else {
-                intakeServo.setPosition(0.5);
+                intakeServo.setPosition(0.5); //not moving
             }
 
             // BLOCK PUSH SERVO CONTROLS
@@ -327,13 +327,13 @@ public class LASER_Teleop extends LinearOpMode {
                 }
             } else if (slideVertical.isBusy() && slideVertical.getCurrentPosition() < 1500 && slideVertical.getCurrentPosition() > 150) {
                 wristMotor.setPower(0.2);
-                wristMotor.setTargetPosition(130);
+                wristMotor.setTargetPosition(130); //avoid
             } else if (slideHorizontal.getCurrentPosition() < -300) {
                 wristMotor.setPower(0.5);
-                wristMotor.setTargetPosition(400);
+                wristMotor.setTargetPosition(400); //idle
             } else {
                 wristMotor.setPower(0.7);
-                wristMotor.setTargetPosition(15);
+                wristMotor.setTargetPosition(15); //in
                 if (!C_IN_SERVO_TRANSF && !C_SPIT) {
                     intakeServo.setPosition(0.5);
                 }
