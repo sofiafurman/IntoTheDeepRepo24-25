@@ -606,13 +606,7 @@ public class threeSampleShoddy extends LinearOpMode{
     //begin code
     @Override
     public void runOpMode() throws InterruptedException {
-        //Pose2d initPose = new Pose2d(0, -72, Math.toRadians(270)); put this back in
-        Pose2d backingPose = new Pose2d(0, -50, Math.toRadians(270));
-        Pose2d initPose = new Pose2d(0, -72, Math.toRadians(270));
-        Pose2d sub = new Pose2d(0, -41, Math.toRadians(270));
-        Pose2d endZone = new Pose2d(32, -73.5, Math.toRadians(90));
-        Pose2d sub2 = new Pose2d(-5, -41.5, Math.toRadians(270));
-        Pose2d finale = new Pose2d(32, -74, Math.toRadians(90));
+        Pose2d initPose = new Pose2d(-48, -72, Math.toRadians(0));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initPose);
         slideVertical lift = new slideVertical(hardwareMap);
         slideHorizontal extend = new slideHorizontal(hardwareMap);
@@ -620,53 +614,18 @@ public class threeSampleShoddy extends LinearOpMode{
         intakeServo spin = new intakeServo(hardwareMap);
         outtakeServo rotateOut = new outtakeServo(hardwareMap);
 
-        TrajectoryActionBuilder toSub = drive.actionBuilder(initPose)
-                .strafeToConstantHeading(new Vector2d(0, -41), new TranslationalVelConstraint(20)); //28 for 2, 1  for 14?
-        TrajectoryActionBuilder back = drive.actionBuilder(sub)
-                .strafeToConstantHeading(new Vector2d(0, -50)); //28 for 2, 1  for 14?
+        TrajectoryActionBuilder noSpline1 = drive.actionBuilder(initPose)
+                .strafeToLinearHeading(new Vector2d(-60, -60), Math.toRadians(45))
+                .strafeToConstantHeading(new Vector2d(-65, -65))
 
-        TrajectoryActionBuilder push3 = drive.actionBuilder(backingPose)
-                // PART 1: score 1st spec & prepare
-                //.splineToSplineHeading(new Pose2d(30, -40, Math.toRadians(90)), Math.toRadians(90))
-                .splineToLinearHeading(new Pose2d(30, -40, Math.toRadians(90)), Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(30, -26), Math.toRadians(90))
-                //PART 2a: 1st push
-                .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(270)) //6 // position
-                .splineToConstantHeading(new Vector2d(39, -57), Math.toRadians(90), new TranslationalVelConstraint(35), new ProfileAccelConstraint(-10,10)) //7 // push
-                .splineToConstantHeading(new Vector2d(39, -26), Math.toRadians(90), new TranslationalVelConstraint(35)) //8 // back to samp area
-                //PART 2b: 2nd push
-                .splineToConstantHeading(new Vector2d(49.8, -26), Math.toRadians(270), new TranslationalVelConstraint(20)) //9 // position
-                .splineToConstantHeading(new Vector2d(49.8, -57), Math.toRadians(270)) //10 // push
-                //PART 3: pick up specimen
-                .splineToConstantHeading(new Vector2d(43, -65), Math.toRadians(180)) //14 // quarter circle 1
-                .splineToConstantHeading(new Vector2d(38, -55), Math.toRadians(270), new TranslationalVelConstraint(30)) //15 // quarter circle 2
-                .splineToConstantHeading(new Vector2d(32, -74), Math.toRadians(90), new TranslationalVelConstraint(5))
-                .splineToConstantHeading(new Vector2d(32, -71) , Math.toRadians(90), new TranslationalVelConstraint(10.0));
+                .strafeToLinearHeading(new Vector2d(-52, -50), Math.toRadians(135));
+
+        //TrajectoryActionBuilder Spline1 = drive.actionBuilder(initPose)
+                //.splineToLinearHeading(new Pose2d(-52, -42, Math.toRadians(135)), Math.toRadians(100));
+                //.strafeToConstantHeading(new Vector2d(-65, -65));
 
 
 
-
-        TrajectoryActionBuilder score3 = drive.actionBuilder(endZone)
-                //.strafetoeHeading(new Pose2d(-10, -60, Math.toRadians(180)), Math.toRadians(90)) //TODO: fix
-                .strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270));
-
-        //.splineToSplineHeading(new Pose2d(-10, -60, Math.toRadians(180)), Math.toRadians(90)) //TODO: fix
-        //.splineToSplineHeading(new Pose2d(-5, -42, Math.toRadians(270)), Math.toRadians(270));
-
-        TrajectoryActionBuilder homeStretch = drive.actionBuilder(sub2)
-                //.splineToSplineHeading(new Pose2d(0, 60, Math.toRadians(180)), Math.toRadians(270), new TranslationalVelConstraint(10)) //TODO: fix
-                //.splineToSplineHeading(new Pose2d(32, -71, Math.toRadians(90)) , Math.toRadians(90), new TranslationalVelConstraint(10.0));
-                //.strafeToConstantHeading(new Vector2d(20, -71))
-                .strafeToLinearHeading(new Vector2d(32, -69), Math.toRadians(90))
-                //.strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270));
-                //.strafeToLinearHeading(new Vector2d(32, -67), Math.toRadians(90))
-                .strafeToConstantHeading(new Vector2d(32, -74), new TranslationalVelConstraint(10))
-                .strafeToConstantHeading(new Vector2d(32, -71), new TranslationalVelConstraint(15));
-
-        TrajectoryActionBuilder done = drive.actionBuilder(finale)
-                .strafeToConstantHeading(new Vector2d(32, -71))
-                //.strafeToConstantHeading(new Vector2d(20, -71))
-                .strafeToLinearHeading(new Vector2d(-5, -42), Math.toRadians(270));
 
 
 
@@ -682,9 +641,11 @@ public class threeSampleShoddy extends LinearOpMode{
 
         Actions.runBlocking(
             new SequentialAction(
-                 lift.highLift(),
-                 extend.hSlideOut()
+                 //lift.highLift(),
+                 //extend.hSlideOut()
                  //wrist.IntakeTransfer()
+                 noSpline1.build()
+                 //Spline1.build()
             )
         );
 
