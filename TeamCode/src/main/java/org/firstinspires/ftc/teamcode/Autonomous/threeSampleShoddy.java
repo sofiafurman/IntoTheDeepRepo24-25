@@ -25,6 +25,10 @@ import java.util.concurrent.ScheduledExecutorService;
 
 
 //this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
+
+// weird ahh pseudo code
+// semicircle ish spline when going to pick up the samples, just a straight line back??
+
 @Config
 @Autonomous(name = "shoddy", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
@@ -440,7 +444,7 @@ public class threeSampleShoddy extends LinearOpMode{
 
     }
 
-    public class intakeServo{
+    /*public class intakeServo{
         private Servo spin;
 
         public intakeServo(HardwareMap hardwaremap){
@@ -510,8 +514,77 @@ public class threeSampleShoddy extends LinearOpMode{
             return new IntakeServoPickUp();
         }
 
-    }
+    }*/
+    public class intakeServo {
+        private Servo spin;
 
+        public intakeServo(HardwareMap hardwareMap) {
+            spin = hardwareMap.get(Servo.class, "intake_servo"); // Make sure the configuration matches
+            spin.setPosition(0.5); // Initialize servo position
+        }
+
+        // Action to stop the intake servo (set to position 0.5)
+        public class IntakeServoStop implements Action {
+            private boolean initialized = false;
+            private long startTime;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                // Initialize the servo movement and record the start time
+                if (!initialized) {
+                    spin.setPosition(0.5);
+                    startTime = System.currentTimeMillis();
+                    initialized = true;
+                }
+
+                // Check if 3 seconds have elapsed
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                if (elapsedTime >= 3000) {
+                    spin.setPosition(0); // Stop the servo
+                    return true; // Action is complete
+                }
+
+                // Update telemetry
+                packet.put("servoPos", spin.getPosition());
+                return false; // Action is still running
+            }
+        }
+
+        public Action intakeServoStop() {
+            return new IntakeServoStop();
+        }
+
+        // Action to pick up using the intake servo (set to position 1)
+        public class IntakeServoPickUp implements Action {
+            private boolean initialized = false;
+            private long startTime;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                // Initialize the servo movement and record the start time
+                if (!initialized) {
+                    spin.setPosition(1);
+                    startTime = System.currentTimeMillis();
+                    initialized = true;
+                }
+
+                // Check if 3 seconds have elapsed
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                if (elapsedTime >= 3000) {
+                    spin.setPosition(0.5); // Stop the servo
+                    return true; // Action is complete
+                }
+
+                // Update telemetry
+                packet.put("servoPos", spin.getPosition());
+                return false; // Action is still running
+            }
+        }
+
+        public Action intakeServoPickUp() {
+            return new IntakeServoPickUp();
+        }
+    }
 
     public class outtakeServo{
         private Servo rotateOut;
@@ -522,6 +595,7 @@ public class threeSampleShoddy extends LinearOpMode{
             //initpos 0.70
             //endpos 0.06
         }
+
 
 
     }
@@ -609,8 +683,8 @@ public class threeSampleShoddy extends LinearOpMode{
         Actions.runBlocking(
             new SequentialAction(
                  lift.highLift(),
-                 extend.hSlideOut(),
-                 wrist.IntakeTransfer()
+                 extend.hSlideOut()
+                 //wrist.IntakeTransfer()
             )
         );
 
