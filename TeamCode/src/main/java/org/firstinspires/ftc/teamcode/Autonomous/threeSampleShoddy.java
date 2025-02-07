@@ -596,6 +596,70 @@ public class threeSampleShoddy extends LinearOpMode{
             //endpos 0.06
         }
 
+        public class OuttakeIt implements Action{
+            //checks if lift motor has been powered on
+            private boolean initialized = false;
+            //actions formatted via telemetry packets as below
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                //powers on motor if not on
+                if (!initialized){
+                    //rotateOut.setPower(1);
+                    initialized = true;
+                }
+                //checks lift's current position
+                double pos = rotateOut.getPosition();
+                packet.put("liftPos", pos);
+                if (pos > 0.06) {
+                    //true causes the action to return
+                    //rotateOut.se;
+                    rotateOut.setPosition(0.06);
+                    return true;
+                } else {
+                    //false stops action rerun
+                    //rotateOut.setPower(0);
+                    rotateOut.setPosition(0.7);
+                    return false;
+                }
+            }
+        }
+
+        public Action outtakeIt() {
+            return new OuttakeIt();
+        }
+
+
+        public class OuttakeHome implements Action{
+            //checks if lift motor has been powered on
+            private boolean initialized = false;
+            //actions formatted via telemetry packets as below
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                //powers on motor if not on
+                if (!initialized){
+                    //rotateOut.setPower(1);
+                    initialized = true;
+                }
+                //checks lift's current position
+                double pos = rotateOut.getPosition();
+                packet.put("liftPos", pos);
+                if (pos < 0.7) {
+                    //true causes the action to return
+                    //rotateOut.se;
+                    rotateOut.setPosition(0.7);
+                    return true;
+                } else {
+                    //false stops action rerun
+                    //rotateOut.setPower(0);
+                    //rotateOut.setPosition(0.06);
+                    return false;
+                }
+            }
+        }
+
+        public Action outtakeHome() {
+            return new OuttakeHome();
+        }
 
 
     }
