@@ -607,6 +607,15 @@ public class threeSampleShoddy extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d initPose = new Pose2d(-48, -72, Math.toRadians(0));
+
+        Pose2d scoring = new Pose2d(-65, -65, Math.toRadians(45));
+
+        Pose2d first = new Pose2d(-48, -46, Math.toRadians(135));
+
+        Pose2d second = new Pose2d(-58, -46, Math.toRadians(135));
+
+        Pose2d third = new Pose2d(-68, -46, Math.toRadians(135));
+
         MecanumDrive drive = new MecanumDrive(hardwareMap, initPose);
         slideVertical lift = new slideVertical(hardwareMap);
         slideHorizontal extend = new slideHorizontal(hardwareMap);
@@ -614,11 +623,26 @@ public class threeSampleShoddy extends LinearOpMode{
         intakeServo spin = new intakeServo(hardwareMap);
         outtakeServo rotateOut = new outtakeServo(hardwareMap);
 
-        TrajectoryActionBuilder noSpline1 = drive.actionBuilder(initPose)
-                .strafeToLinearHeading(new Vector2d(-60, -60), Math.toRadians(45))
-                .strafeToConstantHeading(new Vector2d(-65, -65))
+        TrajectoryActionBuilder score1 = drive.actionBuilder(initPose)
+                .strafeToLinearHeading(new Vector2d(-65, -65), Math.toRadians(45));
 
-                .strafeToLinearHeading(new Vector2d(-52, -50), Math.toRadians(135));
+        TrajectoryActionBuilder grab2 = drive.actionBuilder(scoring)
+                .strafeToLinearHeading(new Vector2d(-48, -46), Math.toRadians(135));
+
+        TrajectoryActionBuilder score2 = drive.actionBuilder(first)
+                .strafeToLinearHeading(new Vector2d(-65, -65), Math.toRadians(45));
+
+        TrajectoryActionBuilder grab3 = drive.actionBuilder(scoring)
+                .strafeToLinearHeading(new Vector2d(-58, -46), Math.toRadians(135));
+
+        TrajectoryActionBuilder score3 = drive.actionBuilder(second)
+                .strafeToLinearHeading(new Vector2d(-65, -65), Math.toRadians(45));
+
+        TrajectoryActionBuilder grab4 = drive.actionBuilder(scoring)
+                .strafeToLinearHeading(new Vector2d(-68, -46), Math.toRadians(135), new TranslationalVelConstraint(15.0));
+
+        TrajectoryActionBuilder score4 = drive.actionBuilder(third)
+                .strafeToLinearHeading(new Vector2d(-65, -65), Math.toRadians(45));
 
         //TrajectoryActionBuilder Spline1 = drive.actionBuilder(initPose)
                 //.splineToLinearHeading(new Pose2d(-52, -42, Math.toRadians(135)), Math.toRadians(100));
@@ -644,8 +668,13 @@ public class threeSampleShoddy extends LinearOpMode{
                  //lift.highLift(),
                  //extend.hSlideOut()
                  //wrist.IntakeTransfer()
-                 noSpline1.build()
-                 //Spline1.build()
+                 score1.build(),
+                 grab2.build(),
+                 score2.build(),
+                 grab3.build(),
+                 score3.build(),
+                 grab4.build(),
+                 score4.build()
             )
         );
 
