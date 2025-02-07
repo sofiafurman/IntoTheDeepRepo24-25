@@ -668,6 +668,7 @@ public class threeSampleShoddy extends LinearOpMode{
                  //lift.highLift(),
                  //extend.hSlideOut()
                  //wrist.IntakeTransfer()
+                 //intakeServo.IntakeServoPickUp ,
                  score1.build(),
                  grab2.build(),
                  score2.build(),

@@ -38,6 +38,71 @@ public class anotheronethankyou extends LinearOpMode {
 
     //mechanism instantiation
 
+    public class intakeServo {
+        private Servo spinny;
+
+        public intakeServo(HardwareMap hardwareMap) {
+            spinny = hardwareMap.get(Servo.class, "intake_servo"); // Make sure the configuration matches
+            //spinny.setPosition(0.5); // Initialize servo position
+        }
+
+        public class IntakeServoPickUp implements Action { // this is also intake completely in
+            //checks if lift motor has been powered on
+            //private boolean initialized = false;
+            private long startTime;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                // Initialize the servo movement and record the start time
+                /*if (!initialized) {
+                    spinny.setPosition(1);
+                    startTime = System.currentTimeMillis();
+                    initialized = true;
+                }*/
+                if (opModeIsActive()){
+                    spinny.setPosition(1.0);
+                    sleep(3000);
+                }
+                //spinny.setDirection(Servo.Direction.FORWARD);
+                //spinny.setPosition(0.3);
+                //spinny.setPosition(1);
+                // Check if 3 seconds have elapsed
+                /*long elapsedTime = System.currentTimeMillis() - startTime;
+                while (elapsedTime <= 3000) {
+                    try{
+                    spinny.setPosition(1);}
+                    catch(NumberFormatException e) {
+                        // Stop the servo
+                        spinny.setPosition(0);
+                    }
+                    return true; // Action is complete
+                }*/
+
+                // Update telemetry
+                packet.put("servoPos", spinny.getPosition());
+                return false; // Action is still running
+            }
+
+        }
+        public Action intakeServoPickUp() {
+            return new IntakeServoPickUp();
+        }
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
     public class slideVertical {
 
         private DcMotorEx lift;
@@ -145,10 +210,10 @@ public class anotheronethankyou extends LinearOpMode {
                 //checks lift's current position
                 double pos = extend.getCurrentPosition();
                 packet.put("extendPos", pos);
-                if (pos < 200) { //50
+                if (pos < 300) { //50
                     //true causes the action to return
                     extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extend.setTargetPosition(200);
+                    extend.setTargetPosition(300);
                     return true;
                 } else {
                     //false stops action rerun
@@ -161,6 +226,39 @@ public class anotheronethankyou extends LinearOpMode {
         public Action hSlideOut(){
             return new slideHorizontal.HSlideOut();
         }
+
+        public class HSlideFinish implements Action {
+            //checks if lift motor has been powered on
+            private boolean initialized = false;
+
+            //actions formatted via telemetry packets as below
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                //powers on motor if not on
+                if (!initialized) {
+                    extend.setPower(1);
+                    initialized = true;
+                }
+                //checks lift's current position
+                double pos = extend.getCurrentPosition();
+                packet.put("extendPos", pos);
+                if (pos < 500) { //50
+                    //true causes the action to return
+                    extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    extend.setTargetPosition(500);
+                    return true;
+                } else {
+                    //false stops action rerun
+                    //TODO: turn off motor when done
+                    extend.setPower(0);
+                    return false;
+                }
+            }
+        }
+        public Action hSlideFinish(){
+            return new slideHorizontal.HSlideFinish();
+        }
+
 
         public class HSlideIn implements Action {
             //checks if lift motor has been powered on
@@ -201,6 +299,7 @@ public class anotheronethankyou extends LinearOpMode {
     }
 
     public class wristDrive {
+
 
         private DcMotorEx intakeW;
 
@@ -295,10 +394,10 @@ public class anotheronethankyou extends LinearOpMode {
                 //checks lift's current position
                 double pos = intakeW.getCurrentPosition();
                 packet.put("wristPos", pos);
-                if (pos < 715) { //50
+                if (pos < 683) { //50
                     //true causes the action to return
                     intakeW.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    intakeW.setTargetPosition(715);
+                    intakeW.setTargetPosition(683);
                     return true;
                 } else {
                     //false stops action rerun
@@ -313,7 +412,6 @@ public class anotheronethankyou extends LinearOpMode {
             return new wristDrive.IntakePickUp();
         }
 
-
     }
 
 
@@ -323,9 +421,7 @@ public class anotheronethankyou extends LinearOpMode {
 
 
 
-
-
-        //begin code
+    //begin code
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d initPose = new Pose2d(-48, -72, Math.toRadians(0));
@@ -342,7 +438,7 @@ public class anotheronethankyou extends LinearOpMode {
         slideVertical lift = new slideVertical(hardwareMap);
         slideHorizontal extend = new slideHorizontal(hardwareMap);
         wristDrive intakeW = new wristDrive(hardwareMap);
-        //intakeServo spin = new intakeServo(hardwareMap);
+        intakeServo spinny = new intakeServo(hardwareMap);
         //outtakeServo rotateOut = new outtakeServo(hardwareMap);
 
         TrajectoryActionBuilder score1 = drive.actionBuilder(initPose)
@@ -392,12 +488,30 @@ public class anotheronethankyou extends LinearOpMode {
 
                         //intakeW.intakePickUp(),
                         //intakeW.intakeAvoid(),
-                        extend.hSlideOut(),
+
                         //extend.hSlideIn()
 
                         //intakeW.intakeTransfer()
 
-                        intakeW.intakePickUp()
+                        //intakeW.intakePickUp()
+                        //intakeServo.IntakeServoStop
+                        new ParallelAction(
+                                score1.build(),
+                                lift.highLift()
+                        ),
+                        new ParallelAction(
+                                lift.liftDown(),
+                                extend.hSlideOut(),
+                                intakeW.intakePickUp(),
+                                grab2.build()
+                        ),
+                        extend.hSlideFinish(),
+                        spinny.intakeServoPickUp(),
+                        intakeW.intakeTransfer(),
+                        new ParallelAction(
+                        spinny.intakeServoPickUp(),
+                        score2.build()
+                        )
 
 
 
