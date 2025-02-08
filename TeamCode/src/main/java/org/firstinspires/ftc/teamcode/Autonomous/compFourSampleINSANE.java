@@ -26,11 +26,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 // semicircle ish spline when going to pick up the samples, just a straight line back??
 
 @Config
-@Autonomous(name = "4 sample 32 UNTESTED", group = "Autonomous")
+@Autonomous(name = "4 sample 32 DON'T TOUCH -- COMPLETELY CHANGED", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
-public class compFourSampleUntested extends LinearOpMode {
+public class compFourSampleINSANE extends LinearOpMode {
 
     //mechanism instantiation
 
@@ -328,14 +328,14 @@ public class compFourSampleUntested extends LinearOpMode {
                 //checks lift's current position
                 double pos = lift.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos < 5024) {
+                if (pos < 4024) { //og 5024
                     //true causes the action to return
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(5024);
                     return true;
                 } else {
                     //false stops action rerun
-                    lift.setPower(0);
+                    //lift.setPower(0);
                     return false;
                 }
             }
@@ -878,13 +878,16 @@ public class compFourSampleUntested extends LinearOpMode {
                         ),
 
                         new ParallelAction(
+                                spinny.intakeServoPickUp(),
                                 intakeW.intakePickUp(),
-                                extend.hSlideFirst(),
-                                spinny.intakeServoPickUp()
+                                extend.hSlideFirst()
                         ),
 
-                        intakeW.intakeTransfer(),
-                        extend.hSlideIn(),
+                        new ParallelAction(
+                                intakeW.intakeTransfer(),
+                                extend.hSlideIn()
+                        ),
+
                         spinny.intakeServoTransfer(),
 
                         new ParallelAction(
@@ -907,8 +910,11 @@ public class compFourSampleUntested extends LinearOpMode {
                                 spinny.intakeServoPickUp()
                         ),
 
-                        intakeW.intakeTransfer(),
-                        extend.hSlideIn(),
+                        new ParallelAction(
+                                intakeW.intakeTransfer(),
+                                extend.hSlideIn()
+                        ),
+
                         spinny.intakeServoTransfer(),
 
                         new ParallelAction(
@@ -931,8 +937,11 @@ public class compFourSampleUntested extends LinearOpMode {
                                 spinny.intakeServoPickUpLong()
                         ),
 
-                        intakeW.intakeTransfer(),
-                        extend.hSlideIn(),
+                        new ParallelAction(
+                                intakeW.intakeTransfer(),
+                                extend.hSlideIn()
+                        ),
+
                         spinny.intakeServoTransfer(),
 
                         new ParallelAction(
