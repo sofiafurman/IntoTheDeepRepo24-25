@@ -26,7 +26,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 // semicircle ish spline when going to pick up the samples, just a straight line back??
 
 @Config
-@Autonomous(name = "4 sample 32 DON'T TOUCH -- COMPLETELY CHANGED", group = "Autonomous")
+@Autonomous(name = "4 sample 32 practice match", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
@@ -195,6 +195,51 @@ public class compFourSampleINSANE extends LinearOpMode {
         public Action intakeServoPickUp() {
             return new IntakeServoPickUp();
         }
+
+
+        public class IntakeServoPickUpSecond implements Action { // this is also intake completely in
+            //checks if lift motor has been powered on
+            //private boolean initialized = false;
+            private long startTime;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                // Initialize the servo movement and record the start time
+                /*if (!initialized) {
+                    spinny.setPosition(1);
+                    startTime = System.currentTimeMillis();
+                    initialized = true;
+                }*/
+                if (opModeIsActive()){
+                    spinny.setPosition(1.0);
+                    sleep(1000);
+                    spinny.setPosition(0.5);
+                }
+                //spinny.setDirection(Servo.Direction.FORWARD);
+                //spinny.setPosition(0.3);
+                //spinny.setPosition(1);
+                // Check if 3 seconds have elapsed
+                /*long elapsedTime = System.currentTimeMillis() - startTime;
+                while (elapsedTime <= 3000) {
+                    try{
+                    spinny.setPosition(1);}
+                    catch(NumberFormatException e) {
+                        // Stop the servo
+                        spinny.setPosition(0);
+                    }
+                    return true; // Action is complete
+                }*/
+
+                // Update telemetry
+                packet.put("servoPos", spinny.getPosition());
+                return false; // Action is still running
+            }
+
+        }
+        public Action intakeServoPickUpSecond() {
+            return new IntakeServoPickUpSecond();
+        }
+
 
 
 
@@ -453,10 +498,10 @@ public class compFourSampleINSANE extends LinearOpMode {
                 //checks lift's current position
                 double pos = extend.getCurrentPosition();
                 packet.put("extendPos", pos);
-                if (pos < 785) { //50
+                if (pos < 485) { //50//785
                     //true causes the action to return
                     extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extend.setTargetPosition(785);
+                    extend.setTargetPosition(485);
                     return true;
                 } else {
                     //false stops action rerun
@@ -485,10 +530,10 @@ public class compFourSampleINSANE extends LinearOpMode {
                 //checks lift's current position
                 double pos = extend.getCurrentPosition();
                 packet.put("extendPos", pos);
-                if (pos < 835) { //50
+                if (pos < 635) { //50 //835
                     //true causes the action to return
                     extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extend.setTargetPosition(835);
+                    extend.setTargetPosition(635);
                     return true;
                 } else {
                     //false stops action rerun
@@ -518,10 +563,10 @@ public class compFourSampleINSANE extends LinearOpMode {
                 //checks lift's current position
                 double pos = extend.getCurrentPosition();
                 packet.put("extendPos", pos);
-                if (pos < 1200) { //50
+                if (pos < 900) { //50 //1200
                     //true causes the action to return
                     extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extend.setTargetPosition(1200);
+                    extend.setTargetPosition(900);
                     return true;
                 } else {
                     //false stops action rerun
@@ -550,10 +595,10 @@ public class compFourSampleINSANE extends LinearOpMode {
                 //checks lift's current position
                 double pos = extend.getCurrentPosition();
                 packet.put("extendPos", pos);
-                if (pos < 1400) { //50
+                if (pos < 1100) { //50
                     //true causes the action to return
                     extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extend.setTargetPosition(1400);
+                    extend.setTargetPosition(1100);
                     return true;
                 } else {
                     //false stops action rerun
@@ -878,10 +923,11 @@ public class compFourSampleINSANE extends LinearOpMode {
                         ),
 
                         new ParallelAction(
-                                spinny.intakeServoPickUp(),
                                 intakeW.intakePickUp(),
-                                extend.hSlideFirst()
+                                extend.hSlideFirst(),
+                                spinny.intakeServoPickUp()
                         ),
+                        //spinny.intakeServoPickUp(),
 
                         new ParallelAction(
                                 intakeW.intakeTransfer(),
@@ -907,7 +953,7 @@ public class compFourSampleINSANE extends LinearOpMode {
                         new ParallelAction(
                                 intakeW.intakePickUp(),
                                 extend.hSlideFinishFinish(),
-                                spinny.intakeServoPickUp()
+                                spinny.intakeServoPickUpSecond()
                         ),
 
                         new ParallelAction(
