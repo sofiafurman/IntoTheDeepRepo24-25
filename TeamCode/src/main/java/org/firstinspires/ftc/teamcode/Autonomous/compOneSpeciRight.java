@@ -22,11 +22,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 
 
-@Config @Autonomous(name = "Middle Auto 13", group = "Autonomous")
+@Config @Autonomous(name = "Right Auto 13", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
-public class oneSpeciMiddle extends LinearOpMode{
+public class compOneSpeciRight extends LinearOpMode{
 
     double quarter = 92.5; //"90 degree" turn
     double tile = 20; //"24 inches;" one tile
@@ -184,14 +184,14 @@ public class oneSpeciMiddle extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         //Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(270));
-        Pose2d initialPose = new Pose2d(0, -72, Math.toRadians(3 * quarter));
+        Pose2d initialPose = new Pose2d(24, -72, Math.toRadians(3 * quarter));
         Pose2d sub = new Pose2d(0, -41, Math.toRadians(3 * quarter));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         slideVertical lift = new slideVertical(hardwareMap);
 
 
         TrajectoryActionBuilder toSub = drive.actionBuilder(initialPose)
-                .strafeToConstantHeading(new Vector2d(0, -41), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(0, -44), new TranslationalVelConstraint(10));
         TrajectoryActionBuilder park = drive.actionBuilder(sub)
                 .strafeToConstantHeading(new Vector2d(58, -60));
 

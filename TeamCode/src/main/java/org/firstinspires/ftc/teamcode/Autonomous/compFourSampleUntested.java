@@ -1,27 +1,23 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 import androidx.annotation.NonNull;
-import java.util.concurrent.*;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import java.util.concurrent.ScheduledExecutorService;
 
 
 //this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
@@ -30,11 +26,11 @@ import java.util.concurrent.ScheduledExecutorService;
 // semicircle ish spline when going to pick up the samples, just a straight line back??
 
 @Config
-@Autonomous(name = "erm what the sigma", group = "Autonomous")
+@Autonomous(name = "4 sample 32 UNTESTED", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
-public class anotheronethankyou extends LinearOpMode {
+public class compFourSampleUntested extends LinearOpMode {
 
     //mechanism instantiation
 
@@ -172,7 +168,7 @@ public class anotheronethankyou extends LinearOpMode {
                 }*/
                 if (opModeIsActive()){
                     spinny.setPosition(1.0);
-                    sleep(1300);
+                    sleep(1500);
                     spinny.setPosition(0.5);
                 }
                 //spinny.setDirection(Servo.Direction.FORWARD);
@@ -473,6 +469,39 @@ public class anotheronethankyou extends LinearOpMode {
         public Action hSlideFinish(){
             return new slideHorizontal.HSlideFinish();
         }
+
+        public class HSlideFinishThird implements Action {
+            //checks if lift motor has been powered on
+            private boolean initialized = false;
+
+            //actions formatted via telemetry packets as below
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                //powers on motor if not on
+                if (!initialized) {
+                    extend.setPower(1);
+                    initialized = true;
+                }
+                //checks lift's current position
+                double pos = extend.getCurrentPosition();
+                packet.put("extendPos", pos);
+                if (pos < 835) { //50
+                    //true causes the action to return
+                    extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    extend.setTargetPosition(835);
+                    return true;
+                } else {
+                    //false stops action rerun
+                    //TODO: turn off motor when done
+                    extend.setPower(0);
+                    return false;
+                }
+            }
+        }
+        public Action hSlideFinishThird(){
+            return new slideHorizontal.HSlideFinishThird();
+        }
+
 
         public class HSlideFirst implements Action {
             //checks if lift motor has been powered on
@@ -776,7 +805,7 @@ public class anotheronethankyou extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Pose2d initPose = new Pose2d(-48, -72, Math.toRadians(0));
 
-        Pose2d scoring = new Pose2d(-65, -65, Math.toRadians(45));
+        Pose2d scoring = new Pose2d(-66, -66, Math.toRadians(45));
 
         Pose2d first = new Pose2d(-48, -46.5, Math.toRadians(145));
 
@@ -792,7 +821,7 @@ public class anotheronethankyou extends LinearOpMode {
         outtakeServo rotateOut = new outtakeServo(hardwareMap);
 
         TrajectoryActionBuilder score1 = drive.actionBuilder(initPose)
-                .strafeToLinearHeading(new Vector2d(-65, -65), Math.toRadians(45));
+                .strafeToLinearHeading(new Vector2d(-66, -66), Math.toRadians(45));
 
         TrajectoryActionBuilder grab2 = drive.actionBuilder(scoring)
                 .strafeToLinearHeading(new Vector2d(-45.975, -46.025), Math.toRadians(138));
@@ -917,7 +946,7 @@ public class anotheronethankyou extends LinearOpMode {
                         ),
                         new ParallelAction(
                                 intakeW.intakePickUp(),
-                                extend.hSlideFinish(),
+                                extend.hSlideFinishThird(),
                                 spinny.intakeServoPickUpLong()
                         ),
 
@@ -938,7 +967,7 @@ public class anotheronethankyou extends LinearOpMode {
                         //new ParallelAction(
                         //spinny.intakeServoPickUp(),
                         //score2.build()
-                        )
+                )
 
 
 
