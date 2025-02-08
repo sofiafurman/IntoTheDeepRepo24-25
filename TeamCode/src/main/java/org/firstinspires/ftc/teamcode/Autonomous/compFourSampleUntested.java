@@ -26,7 +26,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 // semicircle ish spline when going to pick up the samples, just a straight line back??
 
 @Config
-@Autonomous(name = "4 sample 32 UNTESTED", group = "Autonomous")
+@Autonomous(name = "4 sample 32 1:15 changes", group = "Autonomous")
 //Next to red net zone. Once completed, should score one sample to the low basket and drive to the end zone
 //Intake is on the front of the robot. Assume the low basket is at 45 degrees
 //MUCH OF THIS, ESPECIALLY INTAKE AND OUTTAKE, IS THEORETICAL!!! INTAKE AND OUTTAKE HAVEN'T BEEN IMPLEMENTED AS SUBROUTINES AT TIME OF WRITINGedge
@@ -39,7 +39,7 @@ public class compFourSampleUntested extends LinearOpMode {
 
         public outtakeServo(HardwareMap hardwaremap){
             rotateOut = hardwareMap.get(Servo.class, "outtake_servo"); //NOT SURE WHAT IT IS IN CONFIG
-            rotateOut.setPosition(0.70);
+            rotateOut.setPosition(0.725); //init
             //initpos 0.70
             //endpos 0.06
         }
@@ -101,7 +101,7 @@ public class compFourSampleUntested extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
                 if (opModeIsActive()){
-                    rotateOut.setPosition(0.7);
+                    rotateOut.setPosition(0.725);
                     sleep(800);
                 }
                 double pos = rotateOut.getPosition();
@@ -195,6 +195,51 @@ public class compFourSampleUntested extends LinearOpMode {
         public Action intakeServoPickUp() {
             return new IntakeServoPickUp();
         }
+
+
+        public class IntakeServoPickUpSecond implements Action { // this is also intake completely in
+            //checks if lift motor has been powered on
+            //private boolean initialized = false;
+            private long startTime;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                // Initialize the servo movement and record the start time
+                /*if (!initialized) {
+                    spinny.setPosition(1);
+                    startTime = System.currentTimeMillis();
+                    initialized = true;
+                }*/
+                if (opModeIsActive()){
+                    spinny.setPosition(1.0);
+                    sleep(1000);
+                    spinny.setPosition(0.5);
+                }
+                //spinny.setDirection(Servo.Direction.FORWARD);
+                //spinny.setPosition(0.3);
+                //spinny.setPosition(1);
+                // Check if 3 seconds have elapsed
+                /*long elapsedTime = System.currentTimeMillis() - startTime;
+                while (elapsedTime <= 3000) {
+                    try{
+                    spinny.setPosition(1);}
+                    catch(NumberFormatException e) {
+                        // Stop the servo
+                        spinny.setPosition(0);
+                    }
+                    return true; // Action is complete
+                }*/
+
+                // Update telemetry
+                packet.put("servoPos", spinny.getPosition());
+                return false; // Action is still running
+            }
+
+        }
+        public Action intakeServoPickUpSecond() {
+            return new IntakeServoPickUpSecond();
+        }
+
 
 
 
@@ -328,14 +373,14 @@ public class compFourSampleUntested extends LinearOpMode {
                 //checks lift's current position
                 double pos = lift.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos < 5024) {
+                if (pos < 4024) { //og 5024
                     //true causes the action to return
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setTargetPosition(5024);
                     return true;
                 } else {
                     //false stops action rerun
-                    lift.setPower(0);
+                    //lift.setPower(0);
                     return false;
                 }
             }
@@ -438,6 +483,40 @@ public class compFourSampleUntested extends LinearOpMode {
             return new slideHorizontal.HSlideOut();
         }
 
+
+        public class HSlideOutOne implements Action {
+            //checks if lift motor has been powered on
+            private boolean initialized = false;
+
+            //actions formatted via telemetry packets as below
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                //powers on motor if not on
+                if (!initialized) {
+                    extend.setPower(1);
+                    initialized = true;
+                }
+                //checks lift's current position
+                double pos = extend.getCurrentPosition();
+                packet.put("extendPos", pos);
+                if (pos < 225) { //50
+                    //true causes the action to return
+                    extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    extend.setTargetPosition(225);
+                    return true;
+                } else {
+                    //false stops action rerun
+                    //TODO: turn off motor when done
+                    extend.setPower(0);
+                    return false;
+                }
+            }
+        }
+        public Action hSlideOutOne(){
+            return new slideHorizontal.HSlideOutOne();
+        }
+
+
         public class HSlideFinish implements Action {
             //checks if lift motor has been powered on
             private boolean initialized = false;
@@ -453,10 +532,10 @@ public class compFourSampleUntested extends LinearOpMode {
                 //checks lift's current position
                 double pos = extend.getCurrentPosition();
                 packet.put("extendPos", pos);
-                if (pos < 785) { //50
+                if (pos < 485) { //50//785
                     //true causes the action to return
                     extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extend.setTargetPosition(785);
+                    extend.setTargetPosition(485);
                     return true;
                 } else {
                     //false stops action rerun
@@ -485,10 +564,10 @@ public class compFourSampleUntested extends LinearOpMode {
                 //checks lift's current position
                 double pos = extend.getCurrentPosition();
                 packet.put("extendPos", pos);
-                if (pos < 835) { //50
+                if (pos < 700) { //50 //835
                     //true causes the action to return
                     extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extend.setTargetPosition(835);
+                    extend.setTargetPosition(700);
                     return true;
                 } else {
                     //false stops action rerun
@@ -518,10 +597,10 @@ public class compFourSampleUntested extends LinearOpMode {
                 //checks lift's current position
                 double pos = extend.getCurrentPosition();
                 packet.put("extendPos", pos);
-                if (pos < 1200) { //50
+                if (pos < 900) { //50 //1200
                     //true causes the action to return
                     extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extend.setTargetPosition(1200);
+                    extend.setTargetPosition(900);
                     return true;
                 } else {
                     //false stops action rerun
@@ -550,10 +629,10 @@ public class compFourSampleUntested extends LinearOpMode {
                 //checks lift's current position
                 double pos = extend.getCurrentPosition();
                 packet.put("extendPos", pos);
-                if (pos < 1400) { //50
+                if (pos < 1100) { //50
                     //true causes the action to return
                     extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extend.setTargetPosition(1400);
+                    extend.setTargetPosition(1100);
                     return true;
                 } else {
                     //false stops action rerun
@@ -873,7 +952,7 @@ public class compFourSampleUntested extends LinearOpMode {
                         new ParallelAction(
                                 rotateOut.outtakeHome(),
                                 lift.liftDown(),
-                                extend.hSlideOut(),
+                                extend.hSlideOutOne(),
                                 grab2.build()
                         ),
 
@@ -882,9 +961,13 @@ public class compFourSampleUntested extends LinearOpMode {
                                 extend.hSlideFirst(),
                                 spinny.intakeServoPickUp()
                         ),
+                        //spinny.intakeServoPickUp(),
 
-                        intakeW.intakeTransfer(),
-                        extend.hSlideIn(),
+                        new ParallelAction(
+                                intakeW.intakeTransfer(),
+                                extend.hSlideIn()
+                        ),
+
                         spinny.intakeServoTransfer(),
 
                         new ParallelAction(
@@ -904,11 +987,14 @@ public class compFourSampleUntested extends LinearOpMode {
                         new ParallelAction(
                                 intakeW.intakePickUp(),
                                 extend.hSlideFinishFinish(),
-                                spinny.intakeServoPickUp()
+                                spinny.intakeServoPickUpSecond()
                         ),
 
-                        intakeW.intakeTransfer(),
-                        extend.hSlideIn(),
+                        new ParallelAction(
+                                intakeW.intakeTransfer(),
+                                extend.hSlideIn()
+                        ),
+
                         spinny.intakeServoTransfer(),
 
                         new ParallelAction(
@@ -931,8 +1017,11 @@ public class compFourSampleUntested extends LinearOpMode {
                                 spinny.intakeServoPickUpLong()
                         ),
 
-                        intakeW.intakeTransfer(),
-                        extend.hSlideIn(),
+                        new ParallelAction(
+                                intakeW.intakeTransfer(),
+                                extend.hSlideIn()
+                        ),
+
                         spinny.intakeServoTransfer(),
 
                         new ParallelAction(

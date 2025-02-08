@@ -39,7 +39,7 @@ public class compFourSampleINSANE extends LinearOpMode {
 
         public outtakeServo(HardwareMap hardwaremap){
             rotateOut = hardwareMap.get(Servo.class, "outtake_servo"); //NOT SURE WHAT IT IS IN CONFIG
-            rotateOut.setPosition(0.70);
+            rotateOut.setPosition(0.725); //init
             //initpos 0.70
             //endpos 0.06
         }
@@ -101,7 +101,7 @@ public class compFourSampleINSANE extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
                 if (opModeIsActive()){
-                    rotateOut.setPosition(0.7);
+                    rotateOut.setPosition(0.725);
                     sleep(800);
                 }
                 double pos = rotateOut.getPosition();
@@ -483,6 +483,40 @@ public class compFourSampleINSANE extends LinearOpMode {
             return new slideHorizontal.HSlideOut();
         }
 
+
+        public class HSlideOutOne implements Action {
+            //checks if lift motor has been powered on
+            private boolean initialized = false;
+
+            //actions formatted via telemetry packets as below
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                //powers on motor if not on
+                if (!initialized) {
+                    extend.setPower(1);
+                    initialized = true;
+                }
+                //checks lift's current position
+                double pos = extend.getCurrentPosition();
+                packet.put("extendPos", pos);
+                if (pos < 225) { //50
+                    //true causes the action to return
+                    extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    extend.setTargetPosition(225);
+                    return true;
+                } else {
+                    //false stops action rerun
+                    //TODO: turn off motor when done
+                    extend.setPower(0);
+                    return false;
+                }
+            }
+        }
+        public Action hSlideOutOne(){
+            return new slideHorizontal.HSlideOutOne();
+        }
+
+
         public class HSlideFinish implements Action {
             //checks if lift motor has been powered on
             private boolean initialized = false;
@@ -530,10 +564,10 @@ public class compFourSampleINSANE extends LinearOpMode {
                 //checks lift's current position
                 double pos = extend.getCurrentPosition();
                 packet.put("extendPos", pos);
-                if (pos < 635) { //50 //835
+                if (pos < 700) { //50 //835
                     //true causes the action to return
                     extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extend.setTargetPosition(635);
+                    extend.setTargetPosition(700);
                     return true;
                 } else {
                     //false stops action rerun
@@ -918,7 +952,7 @@ public class compFourSampleINSANE extends LinearOpMode {
                         new ParallelAction(
                                 rotateOut.outtakeHome(),
                                 lift.liftDown(),
-                                extend.hSlideOut(),
+                                extend.hSlideOutOne(),
                                 grab2.build()
                         ),
 
