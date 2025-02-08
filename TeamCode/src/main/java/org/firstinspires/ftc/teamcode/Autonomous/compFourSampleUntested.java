@@ -197,6 +197,52 @@ public class compFourSampleUntested extends LinearOpMode {
         }
 
 
+        public class IntakeServoPickUpFirst implements Action { // this is also intake completely in
+            //checks if lift motor has been powered on
+            //private boolean initialized = false;
+            private long startTime;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                // Initialize the servo movement and record the start time
+                /*if (!initialized) {
+                    spinny.setPosition(1);
+                    startTime = System.currentTimeMillis();
+                    initialized = true;
+                }*/
+                if (opModeIsActive()){
+                    spinny.setPosition(1.0);
+                    sleep(1200);
+                    spinny.setPosition(0.5);
+                }
+                //spinny.setDirection(Servo.Direction.FORWARD);
+                //spinny.setPosition(0.3);
+                //spinny.setPosition(1);
+                // Check if 3 seconds have elapsed
+                /*long elapsedTime = System.currentTimeMillis() - startTime;
+                while (elapsedTime <= 3000) {
+                    try{
+                    spinny.setPosition(1);}
+                    catch(NumberFormatException e) {
+                        // Stop the servo
+                        spinny.setPosition(0);
+                    }
+                    return true; // Action is complete
+                }*/
+
+                // Update telemetry
+                packet.put("servoPos", spinny.getPosition());
+                return false; // Action is still running
+            }
+
+        }
+        public Action intakeServoPickUpFirst() {
+            return new IntakeServoPickUpFirst();
+        }
+
+
+
+
         public class IntakeServoPickUpSecond implements Action { // this is also intake completely in
             //checks if lift motor has been powered on
             //private boolean initialized = false;
@@ -258,7 +304,7 @@ public class compFourSampleUntested extends LinearOpMode {
                 }*/
                 if (opModeIsActive()){
                     spinny.setPosition(1.0);
-                    sleep(1900);
+                    sleep(1700);
                     spinny.setPosition(0.5);
                 }
                 //spinny.setDirection(Servo.Direction.FORWARD);
@@ -330,6 +376,99 @@ public class compFourSampleUntested extends LinearOpMode {
         public Action intakeServoTransfer() {
             return new IntakeServoTransfer();
         }
+
+
+
+        public class IntakeServoTransferThird implements Action { // this is also intake completely in
+            //checks if lift motor has been powered on
+            //private boolean initialized = false;
+            private long startTime;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                // Initialize the servo movement and record the start time
+                /*if (!initialized) {
+                    spinny.setPosition(1);
+                    startTime = System.currentTimeMillis();
+                    initialized = true;
+                }*/
+                if (opModeIsActive()){
+                    spinny.setPosition(1.0);
+                    sleep(500);
+                    spinny.setPosition(0.5);
+                }
+                //spinny.setDirection(Servo.Direction.FORWARD);
+                //spinny.setPosition(0.3);
+                //spinny.setPosition(1);
+                // Check if 3 seconds have elapsed
+                /*long elapsedTime = System.currentTimeMillis() - startTime;
+                while (elapsedTime <= 3000) {
+                    try{
+                    spinny.setPosition(1);}
+                    catch(NumberFormatException e) {
+                        // Stop the servo
+                        spinny.setPosition(0);
+                    }
+                    return true; // Action is complete
+                }*/
+
+                // Update telemetry
+                packet.put("servoPos", spinny.getPosition());
+                return false; // Action is still running
+            }
+
+        }
+        public Action intakeServoTransferThird() {
+            return new IntakeServoTransferThird();
+        }
+
+
+
+
+
+        public class IntakeServoTransferSecond implements Action { // this is also intake completely in
+            //checks if lift motor has been powered on
+            //private boolean initialized = false;
+            private long startTime;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                // Initialize the servo movement and record the start time
+                /*if (!initialized) {
+                    spinny.setPosition(1);
+                    startTime = System.currentTimeMillis();
+                    initialized = true;
+                }*/
+                if (opModeIsActive()){
+                    spinny.setPosition(1.0);
+                    sleep(800);
+                    spinny.setPosition(0.5);
+                }
+                //spinny.setDirection(Servo.Direction.FORWARD);
+                //spinny.setPosition(0.3);
+                //spinny.setPosition(1);
+                // Check if 3 seconds have elapsed
+                /*long elapsedTime = System.currentTimeMillis() - startTime;
+                while (elapsedTime <= 3000) {
+                    try{
+                    spinny.setPosition(1);}
+                    catch(NumberFormatException e) {
+                        // Stop the servo
+                        spinny.setPosition(0);
+                    }
+                    return true; // Action is complete
+                }*/
+
+                // Update telemetry
+                packet.put("servoPos", spinny.getPosition());
+                return false; // Action is still running
+            }
+
+        }
+        public Action intakeServoTransferSecond() {
+            return new IntakeServoTransferSecond();
+        }
+
 
 
 
@@ -837,6 +976,8 @@ public class compFourSampleUntested extends LinearOpMode {
             return new wristDrive.IntakeTransfer();
         }
 
+
+
         public class IntakePickUp implements Action { // this is also intake completely in
             //checks if lift motor has been powered on
             private boolean initialized = false;
@@ -954,12 +1095,14 @@ public class compFourSampleUntested extends LinearOpMode {
                                 lift.liftDown(),
                                 extend.hSlideOutOne(),
                                 grab2.build()
+
                         ),
 
                         new ParallelAction(
                                 intakeW.intakePickUp(),
                                 extend.hSlideFirst(),
                                 spinny.intakeServoPickUp()
+                                //spinny.intakeServoPickUpFirst()
                         ),
                         //spinny.intakeServoPickUp(),
 
@@ -995,7 +1138,7 @@ public class compFourSampleUntested extends LinearOpMode {
                                 extend.hSlideIn()
                         ),
 
-                        spinny.intakeServoTransfer(),
+                        spinny.intakeServoTransferSecond(),
 
                         new ParallelAction(
                                 score3.build(),
