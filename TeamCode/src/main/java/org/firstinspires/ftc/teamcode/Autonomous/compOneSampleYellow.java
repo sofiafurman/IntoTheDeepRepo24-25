@@ -4,7 +4,8 @@ package org.firstinspires.ftc.teamcode.Autonomous;
 import com.acmerobotics.dashboard.config.Config;
         import com.acmerobotics.roadrunner.Pose2d;
         import com.acmerobotics.roadrunner.ftc.Actions;
-        import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 // Non-RR imports
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -15,6 +16,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Config
 @Autonomous(name = "1 yellow sample", group = "Autonomous")
+@Disabled
+
 
 //Back left wheel touching edge of red net zone tape (tape fully visible)
 public class compOneSampleYellow extends LinearOpMode{

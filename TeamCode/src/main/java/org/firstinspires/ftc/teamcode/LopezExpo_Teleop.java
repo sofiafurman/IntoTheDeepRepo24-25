@@ -26,7 +26,7 @@ public class LopezExpo_Teleop extends LinearOpMode {
 
         final int CYCLE_MS = 50;
 
-        double speed = 0.2;
+        double speed = 0.3;
         boolean keyA = false;
 
         double C_LATERAL, C_AXIAL, C_YAW;
@@ -43,8 +43,8 @@ public class LopezExpo_Teleop extends LinearOpMode {
         outtakeServo   = hardwareMap.get(Servo.class, "outtake_servo");
         final double OUT_SERVO_DOWN_POS = 0.7;
         final double OUT_SERVO_UP_POS   = 0.06;
-        final double SERVO_SPEED        = -20;
-        double outtakeServoPosition     = outtakeServo.getPosition();
+        final double SERVO_SPEED        = -5;
+        double outtakeServoPosition     = OUT_SERVO_DOWN_POS;
 
         slideVertical = hardwareMap.get(DcMotor.class, "vertical_slide");
         slideVertical.setDirection(DcMotor.Direction.FORWARD);
@@ -129,6 +129,7 @@ public class LopezExpo_Teleop extends LinearOpMode {
 
             // OUTTAKE CONTROLS
             if (C_OUT && (Math.abs(C_AXIAL)<0.2 && Math.abs(C_LATERAL)<0.2 && Math.abs(C_YAW)<0.2)) {
+                slideVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 while (slideVertical.getCurrentPosition() < 1500) {
                     slideVertical.setPower(0.75);
                     slideVertical.setTargetPosition(2000);
@@ -138,13 +139,19 @@ public class LopezExpo_Teleop extends LinearOpMode {
                     if (outtakeServoPosition <= OUT_SERVO_UP_POS) {
                         outtakeServoPosition = OUT_SERVO_UP_POS;
                     }
+                    outtakeServo.setPosition(outtakeServoPosition);
+                    sleep(15);
                 }
+                sleep(1000);
                 while (outtakeServoPosition < OUT_SERVO_DOWN_POS) {
                     outtakeServoPosition -= SERVO_SPEED;
                     if (outtakeServoPosition >= OUT_SERVO_DOWN_POS) {
                         outtakeServoPosition = OUT_SERVO_DOWN_POS;
                     }
+                    outtakeServo.setPosition(outtakeServoPosition);
+                    sleep(15);
                 }
+                sleep(1000);
                 slideVertical.setPower(0.75);
                 slideVertical.setTargetPosition(78);
                 if (keyA == false) {
